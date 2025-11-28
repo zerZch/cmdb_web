@@ -1,0 +1,16 @@
+# Habilitar motor de reescritura
+RewriteEngine On
+
+# Si el archivo o directorio existe, mostrarlo directamente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirigir todo al index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Establecer la zona horaria
+php_value date.timezone "America/Panama"
+
+# Tamaño máximo de archivos
+php_value upload_max_filesize 10M
+php_value post_max_size 10M

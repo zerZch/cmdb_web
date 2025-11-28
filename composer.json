@@ -1,0 +1,16 @@
+{
+    "name": "user/cmdb_project_v2",
+    "description": "Sistema CMDB para la gestión de inventario - Versión 2",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [{
+        "name": "David",
+        "email": "david@example.com"
+    }],
+    "require": {
+        "php": ">=7.4"
+    }
+}
