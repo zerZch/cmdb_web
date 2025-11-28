@@ -1,4 +1,4 @@
-# 🚀 Guía de Instalación CMDB v2
+# 🚀 Guía de Instalación CMDB
 
 ## ⚠️ IMPORTANTE: Tu problema de login
 
@@ -9,6 +9,7 @@ Si no puedes entrar con las credenciales, es porque **la base de datos no está 
 ## 📋 Paso 1: Requisitos Previos
 
 Asegúrate de tener instalado:
+
 - **XAMPP** o **WAMP** (incluye Apache, MySQL y PHP)
 - Navegador web
 
@@ -17,15 +18,18 @@ Asegúrate de tener instalado:
 ## 🔧 Paso 2: Configurar el Proyecto
 
 ### 2.1 Ubicar el proyecto
-1. Copia la carpeta `cmdb_project` a:
+
+1. Copia la carpeta `cmdb_web` a:
    - **XAMPP**: `C:\xampp\htdocs\`
    - **WAMP**: `C:\wamp64\www\`
 
 La ruta final debe ser:
-- XAMPP: `C:\xampp\htdocs\cmdb_project\`
-- WAMP: `C:\wamp64\www\cmdb_project\`
+
+- XAMPP: `C:\xampp\htdocs\cmdb_web\`
+- WAMP: `C:\wamp64\www\cmdb_web\`
 
 ### 2.2 Iniciar servicios
+
 1. Abre el Panel de Control de XAMPP/WAMP
 2. Inicia **Apache**
 3. Inicia **MySQL**
@@ -37,19 +41,22 @@ La ruta final debe ser:
 ### Opción A: Usando phpMyAdmin (Recomendado)
 
 1. **Abre phpMyAdmin**:
+
    - En tu navegador ve a: `http://localhost/phpmyadmin`
 
 2. **Crear la base de datos**:
+
    - Clic en "Nueva" (o "New") en el panel izquierdo
    - Nombre de la base de datos: `cmdb_v2_db`
    - Cotejamiento: `utf8mb4_unicode_ci`
    - Clic en "Crear"
 
 3. **Importar las tablas y datos**:
+
    - Selecciona la base de datos `cmdb_v2_db` que acabas de crear
    - Clic en la pestaña "Importar" (o "Import")
    - Clic en "Seleccionar archivo" (o "Choose File")
-   - Busca y selecciona: `cmdb_project/config/database.sql`
+   - Busca y selecciona: `cmdb_web/config/database.sql`
    - Clic en "Continuar" o "Go" al final de la página
 
 4. **Verificar**:
@@ -66,7 +73,7 @@ mysql -u root -p
 # Luego ejecuta:
 CREATE DATABASE cmdb_v2_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE cmdb_v2_db;
-SOURCE C:/xampp/htdocs/cmdb_project/config/database.sql;
+SOURCE C:/xampp/htdocs/cmdb_web/config/database.sql;
 exit;
 ```
 
@@ -75,7 +82,8 @@ exit;
 ## ⚙️ Paso 4: Configurar la Conexión
 
 1. **Abrir el archivo de configuración**:
-   - Archivo: `cmdb_project/config/database.php`
+
+   - Archivo: `cmdb_web/config/database.php`
 
 2. **Ajustar credenciales** (si es necesario):
 
@@ -89,11 +97,11 @@ define('DB_CHARSET', 'utf8mb4');
 ```
 
 3. **Configurar URL base**:
-   - Archivo: `cmdb_project/config/app.php`
+   - Archivo: `cmdb_web/config/app.php`
    - Ajusta la línea:
 
 ```php
-define('BASE_URL', 'http://localhost/cmdb_project/public/');
+define('BASE_URL', 'http://localhost/cmdb_web/public/');
 ```
 
 ---
@@ -108,6 +116,7 @@ php setup_database.php
 ```
 
 Este script te dirá:
+
 - ✓ Si la conexión a MySQL funciona
 - ✓ Si la base de datos existe
 - ✓ Qué tablas están creadas
@@ -122,17 +131,20 @@ Este script te dirá:
 1. **Abre tu navegador**
 
 2. **Ve a la URL**:
+
    ```
-   http://localhost/cmdb_project/public/
+   http://localhost/cmdb_web/public/
    ```
 
 3. **Credenciales de acceso**:
 
    **👨‍💼 Administrador:**
+
    - Email: `admin@cmdb.com`
    - Password: `admin123`
 
    **👤 Colaborador:**
+
    - Email: `colaborador@cmdb.com`
    - Password: `colab123`
 
@@ -145,6 +157,7 @@ Este script te dirá:
 **Causa**: Errores PHP no se muestran o falta configuración
 
 **Solución**:
+
 1. Verifica que Apache esté corriendo
 2. Verifica que accedes a `/public/` en la URL
 3. Revisa los logs de Apache:
@@ -155,6 +168,7 @@ Este script te dirá:
 **Causa**: Base de datos no configurada o contraseñas incorrectas
 
 **Solución**:
+
 1. Ejecuta `php setup_database.php` para verificar
 2. Ve a phpMyAdmin → `cmdb_v2_db` → tabla `usuarios`
 3. Verifica que existan los usuarios
@@ -178,6 +192,7 @@ VALUES ('Juan', 'Pérez', 'colaborador@cmdb.com', '$2y$12$s2oP1y.OLpNAxQWZr60mU.
 **Causa**: Credenciales de MySQL incorrectas
 
 **Solución**:
+
 1. Edita `config/database.php`
 2. Verifica usuario y contraseña de MySQL
 3. Por defecto en XAMPP:
@@ -189,6 +204,7 @@ VALUES ('Juan', 'Pérez', 'colaborador@cmdb.com', '$2y$12$s2oP1y.OLpNAxQWZr60mU.
 **Causa**: La base de datos no fue creada
 
 **Solución**:
+
 1. Abre phpMyAdmin
 2. Crea la base de datos `cmdb_v2_db`
 3. Importa el archivo `config/database.sql`
@@ -198,6 +214,7 @@ VALUES ('Juan', 'Pérez', 'colaborador@cmdb.com', '$2y$12$s2oP1y.OLpNAxQWZr60mU.
 **Causa**: Archivo `.htaccess` no está funcionando
 
 **Solución**:
+
 1. Verifica que `mod_rewrite` esté habilitado en Apache
 2. En XAMPP, edita `C:\xampp\apache\conf\httpd.conf`
 3. Busca y descomenta (quita el #):
@@ -219,7 +236,7 @@ VALUES ('Juan', 'Pérez', 'colaborador@cmdb.com', '$2y$12$s2oP1y.OLpNAxQWZr60mU.
 - [ ] Configuración en `config/database.php` correcta
 - [ ] URL base en `config/app.php` correcta
 - [ ] Script `setup_database.php` ejecutado sin errores
-- [ ] Puedo acceder a `http://localhost/cmdb_project/public/`
+- [ ] Puedo acceder a `http://localhost/cmdb_web/public/`
 - [ ] Puedo hacer login con admin@cmdb.com / admin123
 
 ---
@@ -227,14 +244,18 @@ VALUES ('Juan', 'Pérez', 'colaborador@cmdb.com', '$2y$12$s2oP1y.OLpNAxQWZr60mU.
 ## 📞 Si Aún Tienes Problemas
 
 1. **Verifica los logs de PHP**:
+
    - Temporal: Agrega al inicio de `public/index.php`:
+
    ```php
    ini_set('display_errors', 1);
    error_reporting(E_ALL);
    ```
 
 2. **Verifica la conexión a la base de datos**:
+
    - Crea un archivo `test_conexion.php` en la raíz:
+
    ```php
    <?php
    require 'config/database.php';
@@ -246,6 +267,7 @@ VALUES ('Juan', 'Pérez', 'colaborador@cmdb.com', '$2y$12$s2oP1y.OLpNAxQWZr60mU.
        echo "✗ Error: " . $e->getMessage();
    }
    ```
+
    - Accede a: `http://localhost/cmdb_project/test_conexion.php`
 
 3. **Verifica que las tablas existen**:
@@ -257,6 +279,7 @@ VALUES ('Juan', 'Pérez', 'colaborador@cmdb.com', '$2y$12$s2oP1y.OLpNAxQWZr60mU.
 ## 🎉 ¡Listo!
 
 Una vez completados todos los pasos, deberías poder:
+
 - ✅ Acceder al sistema de login
 - ✅ Iniciar sesión con las credenciales de prueba
 - ✅ Ver el dashboard con métricas
