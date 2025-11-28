@@ -4,7 +4,7 @@
 
 define('APP_NAME', 'CMDB Sistema de Inventario');
 define('APP_VERSION', '2.0');
-define('BASE_URL', 'http://localhost/cmdb_project/public/');
+define('BASE_URL', 'http://localhost/cmdb_web/public/');
 
 // Roles del sistema
 define('ROLE_ADMIN', 'admin');

@@ -1,5 +1,5 @@
 {
-    "name": "user/cmdb_project_v2",
+    "name": "user/cmdb_web_v2",
     "description": "Sistema CMDB para la gestión de inventario - Versión 2",
     "autoload": {
         "psr-4": {

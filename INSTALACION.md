@@ -268,7 +268,7 @@ VALUES ('Juan', 'Pérez', 'colaborador@cmdb.com', '$2y$12$s2oP1y.OLpNAxQWZr60mU.
    }
    ```
 
-   - Accede a: `http://localhost/cmdb_project/test_conexion.php`
+   - Accede a: `http://localhost/cmdb_web/test_conexion.php`
 
 3. **Verifica que las tablas existen**:
    - En phpMyAdmin, selecciona `cmdb_v2_db`
