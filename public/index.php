@@ -37,6 +37,10 @@ use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\UsuarioController;
 use App\Controllers\CategoriaController;
+use App\Controllers\ColaboradorController;
+use App\Controllers\BajaController;
+use App\Controllers\DonacionController;
+use App\Controllers\ReporteController;
 
 // ================================================================
 // 4. DEFINIR RUTAS DE LA APLICACIÓN
@@ -47,6 +51,10 @@ $routes = [
     'dashboard'  => DashboardController::class,
     'usuarios'   => UsuarioController::class,
     'categorias' => CategoriaController::class,
+    'colaboradores' => ColaboradorController::class,
+    'bajas' => BajaController::class,
+    'donaciones' => DonacionController::class,
+    'reportes' => ReporteController::class,
 ];
 
 // ================================================================

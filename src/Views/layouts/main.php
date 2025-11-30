@@ -54,11 +54,15 @@
             </a>
 
             <?php if (hasRole(ROLE_ADMIN)): ?>
+                <!-- ============================================
+                     SECCIÓN DE ADMINISTRACIÓN
+                     ============================================ -->
+                
                 <!-- Gestión de Usuarios -->
                 <a href="index.php?route=usuarios"
                    class="<?= ($_GET['route'] ?? '') === 'usuarios' ? 'active' : '' ?>"
                    title="Gestión de Usuarios">
-                    <i class="fas fa-users"></i>
+                    <i class="fas fa-users-cog"></i>
                     <span>Usuarios</span>
                 </a>
 
@@ -70,6 +74,67 @@
                     <span>Categorías</span>
                 </a>
             <?php endif; ?>
+
+            <!-- ============================================
+                 SECCIÓN DE GESTIÓN (Integrante 3)
+                 ============================================ -->
+            
+            <!-- Colaboradores -->
+            <a href="index.php?route=colaboradores"
+               class="<?= ($_GET['route'] ?? '') === 'colaboradores' ? 'active' : '' ?>"
+               title="Gestión de Colaboradores">
+                <i class="fas fa-users"></i>
+                <span>Colaboradores</span>
+            </a>
+
+            <!-- Bajas de Equipos -->
+            <a href="index.php?route=bajas"
+               class="<?= ($_GET['route'] ?? '') === 'bajas' ? 'active' : '' ?>"
+               title="Bajas de Equipos">
+                <i class="fas fa-trash-alt"></i>
+                <span>Bajas</span>
+            </a>
+
+            <!-- Donaciones -->
+            <a href="index.php?route=donaciones"
+               class="<?= ($_GET['route'] ?? '') === 'donaciones' ? 'active' : '' ?>"
+               title="Donaciones de Equipos">
+                <i class="fas fa-hand-holding-heart"></i>
+                <span>Donaciones</span>
+            </a>
+
+            <!-- ============================================
+                 SECCIÓN DE REPORTES
+                 ============================================ -->
+            
+            <!-- Separador -->
+            <hr>
+
+            <!-- Reportes -->
+            <a href="index.php?route=reportes"
+               class="<?= ($_GET['route'] ?? '') === 'reportes' ? 'active' : '' ?>"
+               title="Reportes e Historial">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Reportes</span>
+            </a>
+
+            <!-- Inventario Completo -->
+            <a href="index.php?route=reportes&action=inventario"
+               class="<?= ($_GET['route'] ?? '') === 'reportes' && ($_GET['action'] ?? '') === 'inventario' ? 'active' : '' ?>"
+               title="Reporte de Inventario"
+               style="padding-left: 48px;">
+                <i class="fas fa-boxes"></i>
+                <span>Inventario</span>
+            </a>
+
+            <!-- Historial de Equipos -->
+            <a href="index.php?route=reportes&action=historialEquipo"
+               class="<?= ($_GET['route'] ?? '') === 'reportes' && ($_GET['action'] ?? '') === 'historialEquipo' ? 'active' : '' ?>"
+               title="Historial de Equipos"
+               style="padding-left: 48px;">
+                <i class="fas fa-history"></i>
+                <span>Historial</span>
+            </a>
 
             <!-- Separador -->
             <hr>
