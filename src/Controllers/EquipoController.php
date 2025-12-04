@@ -25,7 +25,12 @@ class EquipoController extends BaseController
     {
         $this->requireAuth();
         
-        $equipos = $this->equipoModel->getAllWithCategoria();
+        $equipos = array_filter(
+            $this->equipoModel->getAllWithCategoria(),
+            function($equipo) {
+                return $equipo['estado'] !== 'dado_de_baja';
+            }
+        );
         $estadisticas = $this->equipoModel->getEstadisticas();
         
         $this->render('Views/equipos/index.php', [
@@ -282,52 +287,51 @@ class EquipoController extends BaseController
      * Eliminar equipo
      */
     public function delete()
-    {
-        $this->requireAuth();
-        $this->requireRole('admin');
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('equipos');
-            return;
-        }
-        
-        $id = $_GET['id'] ?? null;
-        if (!$id) {
-            setFlashMessage('Error', 'ID de equipo no válido', 'error');
-            redirect('equipos');
-            return;
-        }
-        
-        $equipo = $this->equipoModel->getById($id);
-        if (!$equipo) {
-            setFlashMessage('Error', 'Equipo no encontrado', 'error');
-            redirect('equipos');
-            return;
-        }
-        
-        // Verificar que no esté asignado
-        if ($equipo['estado'] === 'asignado') {
-            setFlashMessage('Error', 'No se puede eliminar un equipo asignado', 'error');
-            redirect('equipos');
-            return;
-        }
-        
-        // Eliminar archivos asociados
-        if ($equipo['foto'] && file_exists(__DIR__ . '/../../public' . $equipo['foto'])) {
-            unlink(__DIR__ . '/../../public' . $equipo['foto']);
-        }
-        if ($equipo['codigo_qr'] && file_exists(__DIR__ . '/../../public' . $equipo['codigo_qr'])) {
-            unlink(__DIR__ . '/../../public' . $equipo['codigo_qr']);
-        }
-        
-        if ($this->equipoModel->delete($id)) {
-            setFlashMessage('¡Éxito!', 'Equipo eliminado exitosamente', 'success');
-        } else {
-            setFlashMessage('Error', 'Error al eliminar el equipo', 'error');
-        }
-        
+{
+    error_log("DELETE METHOD CALLED"); // Debug
+    
+    $this->requireAuth();
+    $this->requireRole('admin');
+    
+    $id = $_POST['id'] ?? $_GET['id'] ?? null;
+    
+    error_log("ID recibido: " . $id); // Debug
+    
+    if (!$id) {
+        error_log("ID es nulo"); // Debug
+        setFlashMessage('Error', 'ID de equipo no válido', 'error');
         redirect('equipos');
+        return;
     }
+    
+    $equipo = $this->equipoModel->getById($id);
+    
+    error_log("Equipo encontrado: " . print_r($equipo, true)); // Debug
+    
+    if (!$equipo) {
+        setFlashMessage('Error', 'Equipo no encontrado', 'error');
+        redirect('equipos');
+        return;
+    }
+    
+    if ($equipo['estado'] === 'asignado') {
+        setFlashMessage('Error', 'No se puede eliminar un equipo asignado', 'error');
+        redirect('equipos');
+        return;
+    }
+    
+    $result = $this->equipoModel->delete($id);
+    
+    error_log("Resultado delete: " . ($result ? 'true' : 'false')); // Debug
+    
+    if ($result) {
+        setFlashMessage('¡Éxito!', 'Equipo eliminado exitosamente', 'success');
+    } else {
+        setFlashMessage('Error', 'Error al eliminar el equipo', 'error');
+    }
+    
+    redirect('equipos');
+}
     
     /**
      * Generar código QR - Optimizado para Windows

@@ -324,4 +324,230 @@ class ReporteController extends BaseController
             'actividad' => $actividad
         ]);
     }
+
+    /**
+     * Reporte de Inventario por Categoría
+     */
+public function inventarioPorCategoria()
+{
+    $this->requireAuth();
+
+    // Verificar si se solicita exportar
+    if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+        return $this->exportarInventarioCategoriaCSV();
+    }
+
+    // Obtener datos del reporte
+    $datosReporte = $this->obtenerDatosInventarioPorCategoria();
+
+    $this->render('Views/reportes/inventario_categoria.php', [
+        'pageTitle' => 'Reporte de Inventario por Categoría',
+        'datosReporte' => $datosReporte
+    ]);
+}
+
+/**
+ * Obtiene los datos del inventario agrupados por categoría
+ */
+
+private function obtenerDatosInventarioPorCategoria()
+{
+    try {
+        $query = "
+            SELECT 
+                c.id as categoria_id,
+                c.nombre as categoria,
+                c.descripcion as categoria_descripcion,
+                COUNT(e.id) as total_equipos,
+                SUM(CASE WHEN e.estado = 'disponible' THEN 1 ELSE 0 END) as disponibles,
+                SUM(CASE WHEN e.estado = 'asignado' THEN 1 ELSE 0 END) as asignados,
+                SUM(CASE WHEN e.estado = 'mantenimiento' THEN 1 ELSE 0 END) as en_revision,
+                SUM(CASE WHEN e.estado = 'dañado' THEN 1 ELSE 0 END) as descarte,
+                SUM(CASE WHEN e.costo_adquisicion IS NOT NULL THEN e.costo_adquisicion ELSE 0 END) as valor_total
+            FROM categorias c
+            LEFT JOIN equipos e ON c.id = e.categoria_id
+            WHERE c.estado = 'activa'
+            GROUP BY c.id, c.nombre, c.descripcion
+            HAVING total_equipos > 0
+            ORDER BY total_equipos DESC, c.nombre ASC
+        ";
+
+        $stmt = $this->equipoModel->getConnection()->query($query);
+        $datos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $totales = [
+            'total_equipos' => 0,
+            'disponibles' => 0,
+            'asignados' => 0,
+            'en_revision' => 0,
+            'descarte' => 0,
+            'valor_total' => 0
+        ];
+
+        foreach ($datos as $row) {
+            $totales['total_equipos'] += $row['total_equipos'];
+            $totales['disponibles'] += $row['disponibles'];
+            $totales['asignados'] += $row['asignados'];
+            $totales['en_revision'] += $row['en_revision'];
+            $totales['descarte'] += $row['descarte'];
+            $totales['valor_total'] += $row['valor_total'];
+        }
+
+        return [
+            'categorias' => $datos,
+            'totales' => $totales
+        ];
+
+    } catch (\PDOException $e) {
+        error_log("Error: " . $e->getMessage());
+        return [
+            'categorias' => [],
+            'totales' => [
+                'total_equipos' => 0,
+                'disponibles' => 0,
+                'asignados' => 0,
+                'en_revision' => 0,
+                'descarte' => 0,
+                'valor_total' => 0
+            ]
+        ];
+    }
+}
+
+/**
+ * Exporta el inventario por categoría a CSV
+ */
+private function exportarInventarioCategoriaCSV()
+{
+    // Obtener datos
+    $datosReporte = $this->obtenerDatosInventarioPorCategoria();
+    
+    // Configurar headers
+    $fecha = date('Y-m-d_H-i-s');
+    $filename = "inventario_por_categoria_{$fecha}.csv";
+    
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Cache-Control: max-age=0');
+    
+    // Crear output
+    $output = fopen('php://output', 'w');
+    fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM para UTF-8
+    
+    // Título
+    fputcsv($output, ['REPORTE DE INVENTARIO POR CATEGORÍA']);
+    fputcsv($output, ['Generado el: ' . date('d/m/Y H:i:s')]);
+    fputcsv($output, []); // Línea vacía
+    
+    // Resumen
+    fputcsv($output, ['RESUMEN GENERAL']);
+    fputcsv($output, ['Total de Equipos:', $datosReporte['totales']['total_equipos']]);
+    fputcsv($output, ['Equipos Disponibles:', $datosReporte['totales']['disponibles']]);
+    fputcsv($output, ['Equipos Asignados:', $datosReporte['totales']['asignados']]);
+    fputcsv($output, ['Equipos en Revisión:', $datosReporte['totales']['en_revision']]);
+    fputcsv($output, ['Equipos en Descarte:', $datosReporte['totales']['descarte']]);
+    fputcsv($output, ['Valor Total:', '$' . number_format($datosReporte['totales']['valor_total'], 2)]);
+    fputcsv($output, []);
+    
+    // Encabezados
+    fputcsv($output, [
+        '#',
+        'Categoría',
+        'Descripción',
+        'Total',
+        'Disponibles',
+        'Asignados',
+        'En Revisión',
+        'Descarte',
+        'Valor Total'
+    ]);
+    
+    // Datos
+    $contador = 1;
+    foreach ($datosReporte['categorias'] as $cat) {
+        fputcsv($output, [
+            $contador++,
+            $cat['categoria'],
+            $cat['categoria_descripcion'] ?? '',
+            $cat['total_equipos'],
+            $cat['disponibles'],
+            $cat['asignados'],
+            $cat['en_revision'],
+            $cat['descarte'],
+            '$' . number_format($cat['valor_total'], 2)
+        ]);
+    }
+    
+    // Totales
+    fputcsv($output, []);
+    fputcsv($output, [
+        '',
+        'TOTALES:',
+        '',
+        $datosReporte['totales']['total_equipos'],
+        $datosReporte['totales']['disponibles'],
+        $datosReporte['totales']['asignados'],
+        $datosReporte['totales']['en_revision'],
+        $datosReporte['totales']['descarte'],
+        '$' . number_format($datosReporte['totales']['valor_total'], 2)
+    ]);
+    
+    fclose($output);
+    exit;
+}
+
+public function detalleCategoria()
+{
+    $this->requireAuth();
+
+    $categoriaId = $_GET['categoria_id'] ?? null;
+
+    if (!$categoriaId) {
+        setFlashMessage('Error', 'Categoría no especificada.', 'error');
+        redirect('reportes', 'inventarioPorCategoria');
+        return;
+    }
+
+    try {
+        $db = $this->equipoModel->getConnection();
+        
+        $queryCategoria = "SELECT * FROM categorias WHERE id = ? AND activo = 1 LIMIT 1";
+        $stmtCategoria = $db->prepare($queryCategoria);
+        $stmtCategoria->execute([$categoriaId]);
+        $categoria = $stmtCategoria->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$categoria) {
+            setFlashMessage('Error', 'Categoría no encontrada.', 'error');
+            redirect('reportes', 'inventarioPorCategoria');
+            return;
+        }
+
+        $queryEquipos = "
+            SELECT 
+                e.*,
+                CONCAT(col.nombre, ' ', col.apellido) as colaborador_nombre,
+                col.ubicacion as colaborador_ubicacion
+            FROM equipos e
+            LEFT JOIN asignaciones a ON e.id = a.equipo_id AND a.fecha_devolucion IS NULL
+            LEFT JOIN colaboradores col ON a.colaborador_id = col.id
+            WHERE e.categoria_id = ? AND e.activo = 1
+            ORDER BY e.estado, e.nombre
+        ";
+
+        $stmtEquipos = $db->prepare($queryEquipos);
+        $stmtEquipos->execute([$categoriaId]);
+        $equipos = $stmtEquipos->fetchAll(\PDO::FETCH_ASSOC);
+
+        $this->render('Views/reportes/detalle_categoria.php', [
+            'pageTitle' => 'Equipos de ' . $categoria['nombre'],
+            'categoria' => $categoria,
+            'equipos' => $equipos
+        ]);
+
+    } catch (\PDOException $e) {
+        error_log("Error: " . $e->getMessage());
+        setFlashMessage('Error', 'Error al obtener datos.', 'error');
+        redirect('reportes', 'inventarioPorCategoria');
+    }
+}
 }

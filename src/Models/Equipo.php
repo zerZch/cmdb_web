@@ -27,7 +27,13 @@ class Equipo extends Model
         
         return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
-    
+    /**
+ * Obtener conexión a la base de datos
+ */
+    public function getConnection()
+    {
+        return $this->db;
+    }
     /**
      * Obtener equipo por ID con categoría
      */
@@ -444,5 +450,15 @@ class Equipo extends Model
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id]);
         return $stmt->fetchColumn() > 0;
+    }
+
+    /**
+     * Eliminar equipo (eliminación lógica)
+     */
+    public function delete($id)
+    {
+        $sql = "UPDATE {$this->table} SET estado = 'baja', updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$id]);
     }
 }

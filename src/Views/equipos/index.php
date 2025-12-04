@@ -200,25 +200,19 @@
 </div>
 
 <script>
-$(document).ready(function() {
-    $('.btn-delete').on('click', function() {
-        const id = $(this).data('id');
-        const nombre = $(this).data('nombre');
+
+const deleteButtons = document.querySelectorAll('.btn-delete');
+
+deleteButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
         
-        Swal.fire({
-            title: '¿Eliminar equipo?',
-            html: `¿Estás seguro de eliminar el equipo <strong>${nombre}</strong>?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = 'index.php?route=equipos&action=delete&id=' + id;
-            }
-        });
+        const id = this.getAttribute('data-id');
+        const nombre = this.getAttribute('data-nombre');
+        
+        if (confirm('¿Está seguro de eliminar el equipo: ' + nombre + '?')) {
+            window.location.href = 'index.php?route=equipos&action=delete&id=' + id;
+        }
     });
 });
 </script>
