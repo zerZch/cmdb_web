@@ -394,17 +394,17 @@ class Equipo extends Model
      * Obtener equipos por categoría para gráficos
      */
     public function getPorCategoria()
-    {
-        $sql = "SELECT c.nombre as categoria, COUNT(e.id) as cantidad
-                FROM categorias c
-                LEFT JOIN {$this->table} e ON c.id = e.categoria_id AND e.estado != 'baja'
-                WHERE c.estado = 'activa'
-                GROUP BY c.id, c.nombre
-                ORDER BY cantidad DESC";
-        
-        return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-    }
-    
+{
+    $sql = "SELECT c.nombre AS categoria, COUNT(e.id) AS total
+            FROM categorias c
+            LEFT JOIN {$this->table} e ON c.id = e.categoria_id AND e.estado != 'baja'
+            WHERE c.estado = 'activa'
+            GROUP BY c.id, c.nombre
+            ORDER BY total DESC";
+
+    return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+}
+
     /**
      * Obtener equipo por ID
      */
