@@ -11,6 +11,11 @@
         "email": "david@example.com"
     }],
     "require": {
-        "php": ">=7.4"
-    }
+        "php": ">=7.4",
+        "endroid/qr-code": "^6.1"
+    },
+    "config": {
+    "platform-check": false
+}
+
 }

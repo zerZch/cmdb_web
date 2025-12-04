@@ -53,4 +53,21 @@ class Categoria extends Model
 
         return $this->query($sql)->fetchAll();
     }
+    /**
+     * Obtener todas las categorías
+     */
+    public function getAll()
+    {
+        $sql = "SELECT * FROM {$this->table} ORDER BY nombre ASC";
+        return $this->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Obtener todas las categorías activas (como array)
+     */
+    public function getAllActivas()
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE estado = 'activa' ORDER BY nombre ASC";
+        return $this->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }

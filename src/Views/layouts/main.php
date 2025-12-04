@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="Sistema CMDB - Gestión de Inventario de Equipos">
     <title><?= $pageTitle ?? 'Dashboard' ?> - <?= APP_NAME ?></title>
-
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
@@ -32,124 +32,153 @@
     <link rel="stylesheet" href="assets/css/custom.css">
 </head>
 <body>
-    <!-- ============================================
-         SIDEBAR
-         ============================================ -->
-    <aside class="sidebar" id="sidebar">
-        <!-- Logo/Brand -->
-        <div class="sidebar-brand">
-            <i class="fas fa-server"></i>
-            <h4><?= APP_NAME ?></h4>
-            <small>Versión <?= APP_VERSION ?></small>
-        </div>
+<!-- ============================================
+     SIDEBAR MEJORADO
+     ============================================ -->
+<aside class="sidebar" id="sidebar">
+    <!-- Logo/Brand -->
+    <div class="sidebar-brand">
+        <i class="fas fa-server"></i>
+        <h4><?= APP_NAME ?></h4>
+        <small>Versión <?= APP_VERSION ?></small>
+    </div>
 
-        <!-- Menú de Navegación -->
-        <nav class="sidebar-menu" role="navigation" aria-label="Menú principal">
-            <!-- Dashboard -->
-            <a href="index.php?route=dashboard"
-               class="<?= ($_GET['route'] ?? 'dashboard') === 'dashboard' ? 'active' : '' ?>"
-               title="Dashboard">
-                <i class="fas fa-chart-line"></i>
-                <span>Dashboard</span>
+    <!-- Menú de Navegación -->
+    <nav class="sidebar-menu" role="navigation" aria-label="Menú principal">
+        
+        <!-- Dashboard Principal -->
+        <a href="index.php?route=dashboard"
+           class="<?= ($_GET['route'] ?? 'dashboard') === 'dashboard' ? 'active' : '' ?>"
+           title="Panel de Control">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <?php if (hasRole(ROLE_ADMIN)): ?>
+            <!-- ============================================
+                 ADMINISTRACIÓN DEL SISTEMA
+                 ============================================ -->
+            <div class="sidebar-section-title">
+                <i class="fas fa-user-shield"></i>
+                <span>Administración</span>
+            </div>
+
+            <a href="index.php?route=usuarios"
+               class="<?= ($_GET['route'] ?? '') === 'usuarios' ? 'active' : '' ?>"
+               title="Gestión de Usuarios del Sistema">
+                <i class="fas fa-users-cog"></i>
+                <span>Usuarios del Sistema</span>
             </a>
 
-            <?php if (hasRole(ROLE_ADMIN)): ?>
-                <!-- ============================================
-                     SECCIÓN DE ADMINISTRACIÓN
-                     ============================================ -->
-                
-                <!-- Gestión de Usuarios -->
-                <a href="index.php?route=usuarios"
-                   class="<?= ($_GET['route'] ?? '') === 'usuarios' ? 'active' : '' ?>"
-                   title="Gestión de Usuarios">
-                    <i class="fas fa-users-cog"></i>
-                    <span>Usuarios</span>
-                </a>
-
-                <!-- Gestión de Categorías -->
-                <a href="index.php?route=categorias"
-                   class="<?= ($_GET['route'] ?? '') === 'categorias' ? 'active' : '' ?>"
-                   title="Gestión de Categorías">
-                    <i class="fas fa-tags"></i>
-                    <span>Categorías</span>
-                </a>
-            <?php endif; ?>
-
-            <!-- ============================================
-                 SECCIÓN DE GESTIÓN (Integrante 3)
-                 ============================================ -->
-            
-            <!-- Colaboradores -->
             <a href="index.php?route=colaboradores"
-               class="<?= ($_GET['route'] ?? '') === 'colaboradores' ? 'active' : '' ?>"
-               title="Gestión de Colaboradores">
+                class="<?= ($_GET['route'] ?? '') === 'colaboradores' ? 'active' : '' ?>"
+                title="Gestión de Empleados">
                 <i class="fas fa-users"></i>
                 <span>Colaboradores</span>
             </a>
 
-            <!-- Bajas de Equipos -->
-            <a href="index.php?route=bajas"
-               class="<?= ($_GET['route'] ?? '') === 'bajas' ? 'active' : '' ?>"
-               title="Bajas de Equipos">
-                <i class="fas fa-trash-alt"></i>
-                <span>Bajas</span>
-            </a>
-
-            <!-- Donaciones -->
-            <a href="index.php?route=donaciones"
-               class="<?= ($_GET['route'] ?? '') === 'donaciones' ? 'active' : '' ?>"
-               title="Donaciones de Equipos">
-                <i class="fas fa-hand-holding-heart"></i>
-                <span>Donaciones</span>
-            </a>
+            <hr class="sidebar-divider">
 
             <!-- ============================================
-                 SECCIÓN DE REPORTES
+                 INVENTARIO Y EQUIPOS
                  ============================================ -->
-            
-            <!-- Separador -->
-            <hr>
-
-            <!-- Reportes -->
-            <a href="index.php?route=reportes"
-               class="<?= ($_GET['route'] ?? '') === 'reportes' ? 'active' : '' ?>"
-               title="Reportes e Historial">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Reportes</span>
-            </a>
-
-            <!-- Inventario Completo -->
-            <a href="index.php?route=reportes&action=inventario"
-               class="<?= ($_GET['route'] ?? '') === 'reportes' && ($_GET['action'] ?? '') === 'inventario' ? 'active' : '' ?>"
-               title="Reporte de Inventario"
-               style="padding-left: 48px;">
+            <div class="sidebar-section-title">
                 <i class="fas fa-boxes"></i>
                 <span>Inventario</span>
+            </div>
+
+            <a href="index.php?route=equipos"
+               class="<?= ($_GET['route'] ?? '') === 'equipos' && ($_GET['action'] ?? '') !== 'reporte-depreciacion' ? 'active' : '' ?>"
+               title="Gestión de Equipos">
+                <i class="fas fa-laptop"></i>
+                <span>Equipos</span>
             </a>
 
-            <!-- Historial de Equipos -->
-            <a href="index.php?route=reportes&action=historialEquipo"
-               class="<?= ($_GET['route'] ?? '') === 'reportes' && ($_GET['action'] ?? '') === 'historialEquipo' ? 'active' : '' ?>"
-               title="Historial de Equipos"
-               style="padding-left: 48px;">
-                <i class="fas fa-history"></i>
-                <span>Historial</span>
+            <a href="index.php?route=categorias"
+                class="<?= ($_GET['route'] ?? '') === 'categorias' ? 'active' : '' ?>"
+                title="Gestión de Categorías">
+                <i class="fas fa-tags"></i>
+                <span>Categorías</span>
             </a>
 
-            <!-- Separador -->
-            <hr>
+            <hr class="sidebar-divider">
+        <?php endif; ?>
 
-            <!-- Cerrar Sesión -->
-            <a href="#"
-               onclick="event.preventDefault(); confirmLogout();"
-               title="Cerrar Sesión"
-               class="logout-link">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Cerrar Sesión</span>
-            </a>
-        </nav>
-    </aside>
+        <!-- ============================================
+             MOVIMIENTOS Y GESTIÓN
+             ============================================ -->
+        <div class="sidebar-section-title">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Movimientos</span>
+        </div>
 
+        <a href="index.php?route=bajas"
+           class="<?= ($_GET['route'] ?? '') === 'bajas' ? 'active' : '' ?>"
+           title="Bajas de Equipos">
+            <i class="fas fa-trash-alt"></i>
+            <span>Bajas</span>
+        </a>
+
+        <a href="index.php?route=donaciones"
+           class="<?= ($_GET['route'] ?? '') === 'donaciones' ? 'active' : '' ?>"
+           title="Donaciones de Equipos">
+            <i class="fas fa-hand-holding-heart"></i>
+            <span>Donaciones</span>
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <!-- ============================================
+             REPORTES Y ANÁLISIS
+             ============================================ -->
+        <div class="sidebar-section-title">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reportes</span>
+        </div>
+
+        <a href="index.php?route=reportes"
+           class="<?= ($_GET['route'] ?? '') === 'reportes' && !isset($_GET['action']) ? 'active' : '' ?>"
+           title="Centro de Reportes">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Panel de Reportes</span>
+        </a>
+
+        <!-- Sub-reportes -->
+        <a href="index.php?route=reportes&action=inventario"
+           class="sidebar-sub-item <?= ($_GET['route'] ?? '') === 'reportes' && ($_GET['action'] ?? '') === 'inventario' ? 'active' : '' ?>"
+           title="Reporte de Inventario Completo">
+            <i class="fas fa-boxes"></i>
+            <span>Inventario Completo</span>
+        </a>
+
+        <a href="index.php?route=equipos&action=reporte-depreciacion"
+           class="sidebar-sub-item <?= ($_GET['route'] ?? '') === 'equipos' && ($_GET['action'] ?? '') === 'reporte-depreciacion' ? 'active' : '' ?>"
+           title="Reporte de Depreciación">
+            <i class="fas fa-chart-line"></i>
+            <span>Depreciación</span>
+        </a>
+
+        <a href="index.php?route=reportes&action=historialEquipo"
+           class="sidebar-sub-item <?= ($_GET['route'] ?? '') === 'reportes' && ($_GET['action'] ?? '') === 'historialEquipo' ? 'active' : '' ?>"
+           title="Historial de Equipos">
+            <i class="fas fa-history"></i>
+            <span>Historial de Equipos</span>
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <!-- Cerrar Sesión -->
+        <a href="#"
+           onclick="event.preventDefault(); confirmLogout();"
+           title="Cerrar Sesión"
+           class="logout-link">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+        </a>
+    </nav>
+</aside>
     <!-- ============================================
          CONTENIDO PRINCIPAL
          ============================================ -->

@@ -201,3 +201,34 @@ FROM logs_acceso l
 WHERE l.created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)
 ORDER BY l.created_at DESC
 LIMIT 100;
+
+CREATE OR REPLACE VIEW v_reporte_depreciacion AS
+SELECT 
+    e.id_equipo,
+    e.codigo_inventario,
+    e.nombre_equipo,
+    e.descripcion,
+    e.categoria_id,
+    c.nombre AS categoria,
+    e.fecha_adquisicion,
+    e.costo,
+    e.vida_util,
+
+    -- AÑOS DE USO
+    TIMESTAMPDIFF(YEAR, e.fecha_adquisicion, CURDATE()) AS anos_uso,
+
+    -- DEPRECIACIÓN ANUAL
+    (e.costo / e.vida_util) AS depreciacion_anual,
+
+    -- DEPRECIACIÓN ACUMULADA = depreciacion_anual * años_uso
+    ROUND((e.costo / e.vida_util) * 
+    TIMESTAMPDIFF(YEAR, e.fecha_adquisicion, CURDATE()), 2) AS depreciacion_acumulada,
+
+    -- VALOR EN LIBROS = costo - depreciación acumulada
+    ROUND(e.costo - (
+        (e.costo / e.vida_util) * 
+        TIMESTAMPDIFF(YEAR, e.fecha_adquisicion, CURDATE())
+    ), 2) AS valor_en_libros
+
+FROM equipos e
+LEFT JOIN categorias c ON c.id_categoria = e.categoria_id;
