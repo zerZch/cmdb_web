@@ -9,12 +9,12 @@
 // ================================================================
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
+require_once '../src/Core/helpers.php';
 // Cargar archivos de configuración y autoload
 require_once '../vendor/autoload.php';
 require_once '../config/database.php';
 require_once '../config/app.php';
-require_once '../src/Core/helpers.php';
+
 
 // Convertir errores PHP en excepciones
 set_error_handler(function ($severity, $message, $file, $line) {
@@ -37,16 +37,26 @@ use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\UsuarioController;
 use App\Controllers\CategoriaController;
+use App\Controllers\EquipoController;
+use App\Controllers\ColaboradorController;
+use App\Controllers\BajaController;
+use App\Controllers\DonacionController;
+use App\Controllers\ReporteController;
 
 // ================================================================
 // 4. DEFINIR RUTAS DE LA APLICACIÓN
 // ================================================================
 $routes = [
-    'login'      => AuthController::class,
-    'logout'     => AuthController::class,
-    'dashboard'  => DashboardController::class,
-    'usuarios'   => UsuarioController::class,
-    'categorias' => CategoriaController::class,
+    'login'         => AuthController::class,
+    'logout'        => AuthController::class,
+    'dashboard'     => DashboardController::class,
+    'usuarios'      => UsuarioController::class,
+    'categorias'    => CategoriaController::class,
+    'equipos'       => EquipoController::class,  // ← NUEVA RUTA
+    'colaboradores' => ColaboradorController::class,
+    'bajas'         => BajaController::class,
+    'donaciones'    => DonacionController::class,
+    'reportes'      => ReporteController::class,
 ];
 
 // ================================================================
@@ -55,7 +65,14 @@ $routes = [
 try {
     $route = $_GET['route'] ?? 'dashboard';
     $action = $_GET['action'] ?? 'index';
+    $actionAliases = [
+        'reporte-depreciacion' => 'reporteDepreciacion',
+        'generate-qr'          => 'generateQR',
+    ];
 
+    if (isset($actionAliases[$action])) {
+        $action = $actionAliases[$action];
+    }
     // Validar que la ruta existe
     if (!isset($routes[$route])) {
         throw new Exception("Ruta no encontrada: {$route}", 404);

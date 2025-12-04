@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="Sistema CMDB - Gestión de Inventario de Equipos">
     <title><?= $pageTitle ?? 'Dashboard' ?> - <?= APP_NAME ?></title>
-
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
@@ -32,59 +32,83 @@
     <link rel="stylesheet" href="assets/css/custom.css">
 </head>
 <body>
-    <!-- ============================================
-         SIDEBAR
-         ============================================ -->
-    <aside class="sidebar" id="sidebar">
-        <!-- Logo/Brand -->
-        <div class="sidebar-brand">
-            <i class="fas fa-server"></i>
-            <h4><?= APP_NAME ?></h4>
-            <small>Versión <?= APP_VERSION ?></small>
-        </div>
+<!-- ============================================
+     SIDEBAR MEJORADO
+     ============================================ -->
+<aside class="sidebar" id="sidebar">
+    <!-- Logo/Brand -->
+    <div class="sidebar-brand">
+        <i class="fas fa-server"></i>
+        <h4><?= APP_NAME ?></h4>
+        <small>Versión <?= APP_VERSION ?></small>
+    </div>
 
-        <!-- Menú de Navegación -->
-        <nav class="sidebar-menu" role="navigation" aria-label="Menú principal">
-            <!-- Dashboard -->
-            <a href="index.php?route=dashboard"
-               class="<?= ($_GET['route'] ?? 'dashboard') === 'dashboard' ? 'active' : '' ?>"
-               title="Dashboard">
-                <i class="fas fa-chart-line"></i>
-                <span>Dashboard</span>
+    <nav class="sidebar-menu" role="navigation" aria-label="Menú principal">
+        
+        <!-- Dashboard -->
+        <a href="index.php?route=dashboard"
+           class="<?= ($_GET['route'] ?? 'dashboard') === 'dashboard' ? 'active' : '' ?>">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <!-- Colaboradores -->
+        <a href="index.php?route=colaboradores"
+            class="<?= ($_GET['route'] ?? '') === 'colaboradores' ? 'active' : '' ?>">
+            <i class="fas fa-users"></i>
+            <span>Colaboradores</span>
+        </a>
+
+        <!-- Equipos -->
+        <a href="index.php?route=equipos"
+           class="<?= ($_GET['route'] ?? '') === 'equipos' ? 'active' : '' ?>">
+            <i class="fas fa-laptop"></i>
+            <span>Equipos</span>
+        </a>
+
+        <!-- Asignaciones -->
+        <a href="index.php?route=asignaciones"
+           class="<?= ($_GET['route'] ?? '') === 'asignaciones' ? 'active' : '' ?>">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Asignaciones</span>
+        </a>
+
+        <!-- Solicitudes -->
+        <a href="index.php?route=necesidades"
+           class="<?= ($_GET['route'] ?? '') === 'necesidades' ? 'active' : '' ?>">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Solicitudes</span>
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <!-- Reportes -->
+        <a href="index.php?route=reportes"
+           class="<?= ($_GET['route'] ?? '') === 'reportes' ? 'active' : '' ?>">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reportes</span>
+        </a>
+
+        <?php if (hasRole(ROLE_ADMIN)): ?>
+            <!-- Administración -->
+            <a href="index.php?route=usuarios"
+               class="<?= ($_GET['route'] ?? '') === 'usuarios' ? 'active' : '' ?>">
+                <i class="fas fa-user-shield"></i>
+                <span>Administración</span>
             </a>
+        <?php endif; ?>
 
-            <?php if (hasRole(ROLE_ADMIN)): ?>
-                <!-- Gestión de Usuarios -->
-                <a href="index.php?route=usuarios"
-                   class="<?= ($_GET['route'] ?? '') === 'usuarios' ? 'active' : '' ?>"
-                   title="Gestión de Usuarios">
-                    <i class="fas fa-users"></i>
-                    <span>Usuarios</span>
-                </a>
+        <hr class="sidebar-divider">
 
-                <!-- Gestión de Categorías -->
-                <a href="index.php?route=categorias"
-                   class="<?= ($_GET['route'] ?? '') === 'categorias' ? 'active' : '' ?>"
-                   title="Gestión de Categorías">
-                    <i class="fas fa-tags"></i>
-                    <span>Categorías</span>
-                </a>
-            <?php endif; ?>
-
-            <!-- Separador -->
-            <hr>
-
-            <!-- Cerrar Sesión -->
-            <a href="#"
-               onclick="event.preventDefault(); confirmLogout();"
-               title="Cerrar Sesión"
-               class="logout-link">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Cerrar Sesión</span>
-            </a>
-        </nav>
-    </aside>
-
+        <!-- Cerrar Sesión -->
+        <a href="#" onclick="event.preventDefault(); confirmLogout();" class="logout-link">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+        </a>
+    </nav>
+</aside>
     <!-- ============================================
          CONTENIDO PRINCIPAL
          ============================================ -->
