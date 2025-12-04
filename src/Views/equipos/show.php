@@ -226,30 +226,89 @@
 
     </div>
 
-    <!-- COLUMNA DERECHA -->
-    <div class="col-lg-4">
-        
-        <!-- Foto del Equipo -->
-        <div class="card shadow mb-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-image"></i> Fotografía
-                </h5>
-            </div>
-            <div class="card-body text-center">
-                <?php if (!empty($equipo['foto'])): ?>
-                    <img src="<?= $equipo['foto'] ?>" 
-                         alt="Foto del equipo" 
-                         class="img-fluid rounded shadow-sm"
-                         style="max-height: 300px; width: 100%; object-fit: cover;">
-                <?php else: ?>
-                    <div class="py-5">
-                        <i class="fas fa-camera fa-5x text-muted mb-3"></i>
-                        <p class="text-muted mb-0">Sin fotografía</p>
-                    </div>
-                <?php endif; ?>
-            </div>
+        <!-- COLUMNA DERECHA -->
+<div class="col-lg-4">
+    
+    <!-- Foto del Equipo -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-image"></i> Fotografía
+            </h5>
         </div>
+        <div class="card-body text-center">
+            <?php if (!empty($equipo['foto'])): ?>
+                <img src="<?= $equipo['foto'] ?>" 
+                     alt="Foto del equipo" 
+                     class="img-fluid rounded shadow-sm"
+                     style="max-height: 300px; width: 100%; object-fit: cover;">
+            <?php else: ?>
+                <div class="py-5">
+                    <i class="fas fa-camera fa-5x text-muted mb-3"></i>
+                    <p class="text-muted mb-0">Sin fotografía</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- 🆕 Código QR -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-qrcode"></i> Código QR
+            </h5>
+        </div>
+        <div class="card-body text-center" id="qrContainer">
+            <?php if (!empty($equipo['codigo_qr'])): ?>
+                <!-- QR ya generado -->
+                <img src="<?= $equipo['codigo_qr'] ?>" 
+                     alt="Código QR del equipo" 
+                     class="img-fluid rounded shadow-sm mb-3"
+                     style="max-width: 250px;">
+                
+                <div class="d-grid gap-2">
+                    <a href="<?= $equipo['codigo_qr'] ?>" 
+                       download="QR_<?= e($equipo['numero_serie']) ?>.png" 
+                       class="btn btn-success btn-sm">
+                        <i class="fas fa-download me-1"></i>Descargar QR
+                    </a>
+                    
+                    <button type="button" class="btn btn-primary btn-sm" onclick="window.print()">
+                        <i class="fas fa-print me-1"></i>Imprimir QR
+                    </button>
+                    
+                    <?php if (hasRole('admin')): ?>
+                        <button type="button" class="btn btn-warning btn-sm" id="btnRegenerateQR">
+                            <i class="fas fa-sync-alt me-1"></i>Regenerar QR
+                        </button>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="alert alert-info mt-3 mb-0">
+                    <small>
+                        <i class="fas fa-info-circle me-1"></i>
+                        Escanea este código para ver los detalles del equipo
+                    </small>
+                </div>
+            <?php else: ?>
+                <!-- QR no generado -->
+                <div class="py-4">
+                    <i class="fas fa-qrcode fa-5x text-muted mb-3"></i>
+                    <p class="text-muted mb-3">Código QR no generado</p>
+                    
+                    <?php if (hasRole('admin')): ?>
+                        <button type="button" class="btn btn-info" id="btnGenerateQR2">
+                            <i class="fas fa-qrcode me-1"></i>Generar Código QR
+                        </button>
+                    <?php else: ?>
+                        <p class="text-muted small">Solo administradores pueden generar códigos QR</p>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+</div>
 
         
 
