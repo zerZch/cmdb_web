@@ -7,26 +7,30 @@
 <div class="row g-4 mb-4">
     <!-- 1. Inventario por Categoría -->
     <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm hover-card">
-        <div class="card-body text-center">
-            <div class="mb-3">
-                <div class="report-icon-wrapper bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" 
-                     style="width: 80px; height: 80px;">
-                    <i class="fas fa-boxes fa-2x text-primary"></i>
+        <div class="card h-100 shadow-sm hover-card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <div class="report-icon-wrapper bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-boxes fa-2x text-primary"></i>
+                    </div>
                 </div>
-            </div>
-            <h5 class="card-title fw-bold">Inventario por Categoría</h5>
-            <p class="card-text text-muted small">
-                Listado de equipos agrupados por categoría con totales, disponibles y asignados. Exportable a Excel.
-            </p>
-            <div class="d-grid gap-2">
-                <a href="index.php?route=reportes&action=inventarioPorCategoria" class="btn btn-primary">
-                    <i class="fas fa-eye me-2"></i>Ver Reporte
-                </a>
+                <h5 class="card-title fw-bold">Inventario por Categoría</h5>
+                <p class="card-text text-muted small">
+                    Listado de equipos agrupados por categoría con totales, disponibles y asignados. Exportable a Excel.
+                </p>
+                <div class="d-grid gap-2">
+                    <a href="index.php?route=reportes&action=inventarioPorCategoria" class="btn btn-primary">
+                        <i class="fas fa-eye me-2"></i>Ver Reporte
+                    </a>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="exportarInventario()">
+                        <i class="fas fa-file-excel me-2"></i>Exportar Excel
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
     <!-- 2. Depreciación -->
     <div class="col-md-6 col-lg-4">
         <div class="card h-100 shadow-sm hover-card">
@@ -131,7 +135,7 @@
         </div>
     </div>
 
-    <!-- Dashboard Ejecutivo (opcional) -->
+    <!-- 6. Dashboard Ejecutivo -->
     <div class="col-md-6 col-lg-4">
         <div class="card h-100 shadow-sm hover-card border-primary">
             <div class="card-body text-center">

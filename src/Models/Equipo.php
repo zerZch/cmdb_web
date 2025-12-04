@@ -19,14 +19,14 @@ class Equipo extends Model
      * Obtener todos los equipos con su categoría
      */
     public function getAllWithCategoria()
-    {
-        $sql = "SELECT e.*, c.nombre as categoria_nombre 
-                FROM {$this->table} e
-                LEFT JOIN categorias c ON e.categoria_id = c.id
-                ORDER BY e.created_at DESC";
-        
-        return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-    }
+{
+    $sql = "SELECT e.*, c.nombre as categoria_nombre 
+            FROM {$this->table} e
+            LEFT JOIN categorias c ON e.categoria_id = c.id
+            ORDER BY e.created_at DESC";
+    
+    return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+}
     /**
  * Obtener conexión a la base de datos
  */
@@ -457,7 +457,7 @@ class Equipo extends Model
      */
     public function delete($id)
     {
-        $sql = "UPDATE {$this->table} SET estado = 'baja', updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+        $sql = "DELETE FROM {$this->table} WHERE id = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$id]);
     }

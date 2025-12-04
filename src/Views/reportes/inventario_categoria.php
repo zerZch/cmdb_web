@@ -6,9 +6,6 @@
             <p class="text-muted mb-0">Listado de equipos agrupados por categoría con totales, disponibles y asignados</p>
         </div>
         <div>
-            <button type="button" class="btn btn-success" onclick="exportarExcel()">
-                <i class="fas fa-file-excel me-2"></i>Exportar a Excel
-            </button>
             <a href="index.php?route=reportes" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Volver
             </a>

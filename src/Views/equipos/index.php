@@ -199,8 +199,8 @@
     </div>
 </div>
 
-<script>
 
+<script>
 const deleteButtons = document.querySelectorAll('.btn-delete');
 
 deleteButtons.forEach(button => {
@@ -210,9 +210,20 @@ deleteButtons.forEach(button => {
         const id = this.getAttribute('data-id');
         const nombre = this.getAttribute('data-nombre');
         
-        if (confirm('¿Está seguro de eliminar el equipo: ' + nombre + '?')) {
-            window.location.href = 'index.php?route=equipos&action=delete&id=' + id;
-        }
+        Swal.fire({
+            title: '¿Está seguro?',
+            text: `Se eliminará permanentemente: ${nombre}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `index.php?route=equipos&action=delete&id=${id}`;
+            }
+        });
     });
 });
 </script>
