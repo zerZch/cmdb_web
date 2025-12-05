@@ -68,6 +68,20 @@
             <span>Equipos</span>
         </a>
 
+        <!-- Bajas -->
+        <a href="index.php?route=bajas"
+           class="<?= ($_GET['route'] ?? '') === 'bajas' ? 'active' : '' ?>">
+            <i class="fas fa-trash-alt"></i>
+            <span>Bajas</span>
+        </a>
+
+        <!-- Donaciones -->
+        <a href="index.php?route=donaciones"
+           class="<?= ($_GET['route'] ?? '') === 'donaciones' ? 'active' : '' ?>">
+            <i class="fas fa-hand-holding-heart"></i>
+            <span>Donaciones</span>
+        </a>
+
         <!-- Asignaciones -->
         <a href="index.php?route=asignaciones"
            class="<?= ($_GET['route'] ?? '') === 'asignaciones' ? 'active' : '' ?>">
