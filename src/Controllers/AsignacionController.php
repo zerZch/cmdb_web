@@ -1,5 +1,4 @@
-x<?php
-
+<?php
 namespace App\Controllers;
 
 use App\Models\Asignacion;
@@ -19,12 +18,12 @@ class AsignacionController extends BaseController
     public function __construct()
     {
         $this->asignacionModel = new Asignacion();
-        $this->equipoModel = new Equipo();
+        $this->equipoModel     = new Equipo();
         $this->colaboradorModel = new Colaborador();
     }
 
     /**
-     * ✅ LISTA TODAS LAS ASIGNACIONES ACTIVAS
+     * LISTADO PRINCIPAL
      */
     public function index()
     {
@@ -33,33 +32,33 @@ class AsignacionController extends BaseController
         $asignaciones = $this->asignacionModel->getAsignacionesActivas();
 
         $this->render('Views/asignaciones/index.php', [
-            'pageTitle' => 'Gestión de Asignaciones',
+            'pageTitle'    => 'Gestión de Asignaciones',
             'asignaciones' => $asignaciones
         ]);
     }
 
     /**
-     * ✅ FORMULARIO PARA CREAR ASIGNACIÓN
+     * FORMULARIO DE NUEVA ASIGNACIÓN
      */
     public function crear()
     {
         $this->requireAuth();
 
-        // Obtener equipos disponibles
+        // Equipos disponibles
         $equiposDisponibles = $this->equipoModel->where('estado', '=', 'disponible');
 
-        // Obtener colaboradores activos
+        // Colaboradores activos
         $colaboradores = $this->colaboradorModel->getActivos();
 
         $this->render('Views/asignaciones/crear.php', [
-            'pageTitle' => 'Asignar Equipo',
-            'equipos' => $equiposDisponibles,
-            'colaboradores' => $colaboradores
+            'pageTitle'    => 'Asignar Equipo',
+            'equipos'      => $equiposDisponibles,
+            'colaboradores'=> $colaboradores
         ]);
     }
 
     /**
-     * ✅ GUARDAR ASIGNACIÓN
+     * GUARDAR ASIGNACIÓN
      */
     public function guardar()
     {
@@ -69,27 +68,18 @@ class AsignacionController extends BaseController
             redirect('asignaciones');
         }
 
+        // Datos que realmente existen en la tabla "asignaciones"
         $data = [
-            'equipo_id' => $_POST['equipo_id'] ?? null,
-            'colaborador_id' => $_POST['colaborador_id'] ?? null,
-            'usuario_responsable_id' => currentUser()['id'],
-            'fecha_asignacion' => $_POST['fecha_asignacion'] ?? date('Y-m-d'),
-            'observaciones' => $_POST['observaciones'] ?? null
+            'equipo_id'       => $_POST['equipo_id']       ?? null,
+            'colaborador_id'  => $_POST['colaborador_id']  ?? null,
+            'usuario_id'      => currentUser()['id'],              // usuario que asigna
+            'fecha_asignacion'=> $_POST['fecha_asignacion'] ?? date('Y-m-d'),
+            'observaciones'   => $_POST['observaciones']   ?? null,
         ];
-
-        // Validar datos
-        $errors = $this->validate($data, [
-            'equipo_id' => ['required'],
-            'colaborador_id' => ['required']
-        ]);
-
-        if (!empty($errors)) {
-            setFlashMessage('Error', 'Por favor complete todos los campos obligatorios.', 'error');
-            redirect('asignaciones', 'crear');
-        }
 
         try {
             $this->asignacionModel->asignarEquipo($data);
+
             setFlashMessage(
                 'Asignación Exitosa',
                 'El equipo ha sido asignado correctamente al colaborador.',
@@ -103,47 +93,35 @@ class AsignacionController extends BaseController
     }
 
     /**
-     * ✅ FORMULARIO PARA DEVOLVER EQUIPO
+     * FORMULARIO PARA DEVOLVER EQUIPO
      */
-    public function devolver()
+    public function devolverForm()
     {
         $this->requireAuth();
 
         $id = $_GET['id'] ?? null;
         if (!$id) {
-            setFlashMessage('Error', 'ID de asignación no válido.', 'error');
             redirect('asignaciones');
         }
 
-        $asignacion = $this->asignacionModel->query(
-            "SELECT 
-                a.*,
-                e.nombre as equipo_nombre,
-                e.numero_serie,
-                c.nombre as colaborador_nombre,
-                c.apellido as colaborador_apellido
-            FROM asignaciones a
-            INNER JOIN equipos e ON a.equipo_id = e.id
-            INNER JOIN colaboradores c ON a.colaborador_id = c.id
-            WHERE a.id = ?",
-            [$id]
-        )->fetch();
-
+        $asignacion = $this->asignacionModel->find($id);
         if (!$asignacion) {
-            setFlashMessage('Error', 'Asignación no encontrada.', 'error');
             redirect('asignaciones');
         }
+
+        $equipo = $this->equipoModel->find($asignacion['equipo_id']);
 
         $this->render('Views/asignaciones/devolver.php', [
-            'pageTitle' => 'Devolver Equipo',
-            'asignacion' => $asignacion
+            'pageTitle'  => 'Devolver Equipo',
+            'asignacion' => $asignacion,
+            'equipo'     => $equipo
         ]);
     }
 
     /**
-     * ✅ PROCESAR DEVOLUCIÓN
+     * GUARDAR DEVOLUCIÓN
      */
-    public function procesarDevolucion()
+    public function devolver()
     {
         $this->requireAuth();
 
@@ -155,51 +133,39 @@ class AsignacionController extends BaseController
 
         $data = [
             'observaciones_devolucion' => $_POST['observaciones_devolucion'] ?? '',
-            'motivo_devolucion' => $_POST['motivo_devolucion'] ?? null,
-            'estado_equipo' => $_POST['estado_equipo'] ?? 'disponible',
-            'usuario_id' => currentUser()['id']
+            'motivo_devolucion'        => $_POST['motivo_devolucion'] ?? '',
+            'estado_equipo'            => $_POST['estado_equipo'] ?? 'disponible',
+            'usuario_id'               => currentUser()['id'],
         ];
-
-        // Validar observación obligatoria
-        if (empty($data['observaciones_devolucion'])) {
-            setFlashMessage(
-                'Error',
-                'La observación de devolución es obligatoria.',
-                'error'
-            );
-            redirect('asignaciones', 'devolver', ['id' => $asignacionId]);
-        }
 
         try {
             $this->asignacionModel->devolverEquipo($asignacionId, $data);
+
             setFlashMessage(
-                'Devolución Exitosa',
+                'Devolución Registrada',
                 'El equipo ha sido devuelto correctamente.',
                 'success'
             );
-            redirect('asignaciones');
         } catch (\Exception $e) {
             setFlashMessage('Error', $e->getMessage(), 'error');
-            redirect('asignaciones', 'devolver', ['id' => $asignacionId]);
         }
+
+        redirect('asignaciones');
     }
 
     /**
-     * ✅ DASHBOARD DEL COLABORADOR ("MIS EQUIPOS")
+     * VISTA "MIS EQUIPOS" (opcional)
      */
     public function misEquipos()
     {
         $this->requireAuth();
 
-        // Obtener ID del colaborador del usuario actual
-        // (Asumiendo que hay una relación entre usuarios y colaboradores)
-        $colaboradorId = currentUser()['id']; // Ajustar según tu lógica
-
+        $colaboradorId = currentUser()['id']; // si tu lógica es distinta, aquí se ajusta
         $equiposAsignados = $this->asignacionModel->getAsignacionesPorColaborador($colaboradorId);
 
         $this->render('Views/asignaciones/mis_equipos.php', [
             'pageTitle' => 'Mis Equipos Asignados',
-            'equipos' => $equiposAsignados
+            'equipos'   => $equiposAsignados
         ]);
     }
 }

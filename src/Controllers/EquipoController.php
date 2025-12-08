@@ -105,7 +105,7 @@ class EquipoController extends BaseController
         
         // Preparar datos
         $data = [
-            'categoria_id' => (int) $_POST['categoria_id'],
+            'categoria_id' => $_POST['categoria_id'] ?? null,
             'marca' => trim($_POST['marca']),
             'modelo' => trim($_POST['modelo']),
             'numero_serie' => trim($_POST['numero_serie']),
@@ -260,7 +260,7 @@ class EquipoController extends BaseController
         
         // Preparar datos
         $data = [
-            'categoria_id' => (int) $_POST['categoria_id'],
+            'categoria_id' => $_POST['categoria_id'] ?? null,
             'marca' => trim($_POST['marca']),
             'modelo' => trim($_POST['modelo']),
             'numero_serie' => trim($_POST['numero_serie']),
