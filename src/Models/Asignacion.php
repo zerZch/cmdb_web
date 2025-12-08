@@ -45,7 +45,7 @@ class Asignacion extends Model
         ]);
 
         // Cambiar estado del equipo
-        $equipoModel->update($data['equipo_id'], ['estado' => 'asignado']);
+        $equipoModel->updateEstado($data['equipo_id'], 'asignado');
 
         // Registrar en historial
         $historialModel = new HistorialMovimiento();

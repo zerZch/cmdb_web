@@ -11,6 +11,7 @@ use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
 use Endroid\QrCode\Color\Color;
+
 class Equipo extends Model
 {
     protected $table = 'equipos';
@@ -19,21 +20,23 @@ class Equipo extends Model
      * Obtener todos los equipos con su categoría
      */
     public function getAllWithCategoria()
-{
-    $sql = "SELECT e.*, c.nombre as categoria_nombre 
-            FROM {$this->table} e
-            LEFT JOIN categorias c ON e.categoria_id = c.id
-            ORDER BY e.created_at DESC";
-    
-    return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-}
+    {
+        $sql = "SELECT e.*, c.nombre as categoria_nombre 
+                FROM {$this->table} e
+                LEFT JOIN categorias c ON e.categoria_id = c.id
+                ORDER BY e.created_at DESC";
+        
+        return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     /**
- * Obtener conexión a la base de datos
- */
+     * Obtener conexión a la base de datos
+     */
     public function getConnection()
     {
         return $this->db;
     }
+
     /**
      * Obtener equipo por ID con categoría
      */
@@ -47,6 +50,14 @@ class Equipo extends Model
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * ✅ NUEVO: Sobrescribir find() para SIEMPRE traer categoria_nombre
+     */
+    public function find($id)
+    {
+        return $this->getByIdWithCategoria($id);
     }
     
     /**
@@ -124,7 +135,6 @@ class Equipo extends Model
     
     /**
      * Actualizar código QR
-     * ✅ CORREGIDO: Ahora usa PDO en lugar de MySQLi
      */
     public function updateQrCode($id, $qrPath)
     {
@@ -132,7 +142,6 @@ class Equipo extends Model
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$qrPath, $id]);
     }
-
     
     /**
      * Generar código de inventario único
@@ -179,49 +188,70 @@ class Equipo extends Model
         $stmt->execute($params);
         return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
     }
+
+    /**
+     * ✅ CORREGIDO: Generar QR con validación de campos
+     */
     public function generarQr($equipo)
-{
-    try {
-        $qrData = json_encode([
-            'id'            => $equipo['id'],
-            'marca'         => $equipo['marca'],
-            'modelo'        => $equipo['modelo'],
-            'numero_serie'  => $equipo['numero_serie'],
-            'categoria'     => $equipo['categoria_nombre']
-        ]);
+    {
+        try {
+            // ✅ VALIDACIÓN: Si no tiene categoria_nombre, la obtenemos
+            if (!isset($equipo['categoria_nombre'])) {
+                $equipoCompleto = $this->getByIdWithCategoria($equipo['id']);
+                if ($equipoCompleto) {
+                    $equipo = $equipoCompleto;
+                }
+            }
 
-        // Ruta donde se guardará el QR
-        $qrPath = __DIR__ . "/../../public/qr/" . $equipo['id'] . ".png";
+            // ✅ Usar valores seguros con operador null coalescing
+            $qrData = json_encode([
+                'id'            => $equipo['id'] ?? 'N/A',
+                'marca'         => $equipo['marca'] ?? 'Sin marca',
+                'modelo'        => $equipo['modelo'] ?? 'Sin modelo',
+                'numero_serie'  => $equipo['numero_serie'] ?? 'S/N',
+                'categoria'     => $equipo['categoria_nombre'] ?? 'Sin categoría'
+            ]);
 
-        // Crear QR
-        $qrCode = QrCode::create($qrData)
-            ->setEncoding(new Encoding('UTF-8'))
-            ->setErrorCorrectionLevel(new ErrorCorrectionLevelHigh())
-            ->setSize(300)
-            ->setMargin(10)
-            ->setRoundBlockSizeMode(new RoundBlockSizeModeMargin())
-            ->setForegroundColor(new Color(0, 0, 0))
-            ->setBackgroundColor(new Color(255, 255, 255));
+            // Ruta donde se guardará el QR
+            $qrPath = __DIR__ . "/../../public/qr/" . $equipo['id'] . ".png";
 
-        $writer = new PngWriter();
-        $result = $writer->write($qrCode);
+            // Crear directorio si no existe
+            $qrDir = dirname($qrPath);
+            if (!is_dir($qrDir)) {
+                mkdir($qrDir, 0777, true);
+            }
 
-        // Guardar en archivo
-        $result->saveToFile($qrPath);
+            // Crear QR
+            $qrCode = QrCode::create($qrData)
+                ->setEncoding(new Encoding('UTF-8'))
+                ->setErrorCorrectionLevel(new ErrorCorrectionLevelHigh())
+                ->setSize(300)
+                ->setMargin(10)
+                ->setRoundBlockSizeMode(new RoundBlockSizeModeMargin())
+                ->setForegroundColor(new Color(0, 0, 0))
+                ->setBackgroundColor(new Color(255, 255, 255));
 
-        return [
-            "success" => true,
-            "path"    => "qr/" . $equipo['id'] . ".png"
-        ];
+            $writer = new PngWriter();
+            $result = $writer->write($qrCode);
 
-    } catch (\Exception $e) {
+            // Guardar en archivo
+            $result->saveToFile($qrPath);
 
-        return [
-            "success" => false,
-            "message" => "Error generando QR: " . $e->getMessage()
-        ];
+            return [
+                "success" => true,
+                "path"    => "qr/" . $equipo['id'] . ".png"
+            ];
+
+        } catch (\Exception $e) {
+            error_log("Error generando QR para equipo {$equipo['id']}: " . $e->getMessage());
+            
+            return [
+                "success" => false,
+                "message" => "Error generando QR: " . $e->getMessage()
+            ];
+        }
     }
-}
+
     /**
      * Calcular depreciación de un equipo
      */
@@ -280,7 +310,6 @@ class Equipo extends Model
             ];
             
         } catch (\Exception $e) {
-            // En caso de error, devolver valores por defecto
             error_log("Error en calcularDepreciacion: " . $e->getMessage());
             
             return [
@@ -295,8 +324,8 @@ class Equipo extends Model
     }
     
     /**
- * Obtener reporte de depreciación
- */
+     * Obtener reporte de depreciación
+     */
     public function getReporteDepreciacion($filtros = [])
     {
         $sql = "SELECT 
@@ -400,16 +429,16 @@ class Equipo extends Model
      * Obtener equipos por categoría para gráficos
      */
     public function getPorCategoria()
-{
-    $sql = "SELECT c.nombre AS categoria, COUNT(e.id) AS total
-            FROM categorias c
-            LEFT JOIN {$this->table} e ON c.id = e.categoria_id AND e.estado != 'baja'
-            WHERE c.estado = 'activa'
-            GROUP BY c.id, c.nombre
-            ORDER BY total DESC";
+    {
+        $sql = "SELECT c.nombre AS categoria, COUNT(e.id) AS total
+                FROM categorias c
+                LEFT JOIN {$this->table} e ON c.id = e.categoria_id AND e.estado != 'baja'
+                WHERE c.estado = 'activa'
+                GROUP BY c.id, c.nombre
+                ORDER BY total DESC";
 
-    return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-}
+        return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     /**
      * Obtener equipo por ID

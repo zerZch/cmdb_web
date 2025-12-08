@@ -111,7 +111,7 @@ class Model
     /**
      * Ejecuta una consulta SQL personalizada
      */
-    protected function query($sql, $params = []) {
+    public function query($sql, $params = []) {
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt;

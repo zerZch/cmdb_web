@@ -178,7 +178,7 @@ class EquipoController extends BaseController
             return;
         }
         
-        $equipo = $this->equipoModel->getById($id);
+        $equipo = $this->equipoModel->getByIdWithCategoria($id);
         
         if (!$equipo) {
             setFlashMessage('Error', 'Equipo no encontrado', 'error');
@@ -286,27 +286,30 @@ class EquipoController extends BaseController
     /**
      * Eliminar equipo
      */
-    public function delete()
+    /**
+ * Eliminar equipo
+ */
+public function delete()
 {
-    error_log("DELETE METHOD CALLED"); // Debug
+    error_log("DELETE METHOD CALLED");
     
     $this->requireAuth();
     $this->requireRole('admin');
     
     $id = $_POST['id'] ?? $_GET['id'] ?? null;
     
-    error_log("ID recibido: " . $id); // Debug
+    error_log("ID recibido: " . $id);
     
     if (!$id) {
-        error_log("ID es nulo"); // Debug
+        error_log("ID es nulo");
         setFlashMessage('Error', 'ID de equipo no válido', 'error');
         redirect('equipos');
         return;
     }
     
-    $equipo = $this->equipoModel->getById($id);
+    $equipo = $this->equipoModel->getByIdWithCategoria($id);
     
-    error_log("Equipo encontrado: " . print_r($equipo, true)); // Debug
+    error_log("Equipo encontrado: " . print_r($equipo, true));
     
     if (!$equipo) {
         setFlashMessage('Error', 'Equipo no encontrado', 'error');
@@ -322,7 +325,7 @@ class EquipoController extends BaseController
     
     $result = $this->equipoModel->delete($id);
     
-    error_log("Resultado delete: " . ($result ? 'true' : 'false')); // Debug
+    error_log("Resultado delete: " . ($result ? 'true' : 'false'));
     
     if ($result) {
         setFlashMessage('¡Éxito!', 'Equipo eliminado exitosamente', 'success');
