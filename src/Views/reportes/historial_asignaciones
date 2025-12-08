@@ -1,0 +1,418 @@
+<!-- Vista: src/Views/reportes/historial_asignaciones.php -->
+<!-- Historial Completo de Todas las Asignaciones (Activas + Devueltas) -->
+
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2><i class="fas fa-history me-2"></i>Historial Completo de Asignaciones</h2>
+            <p class="text-muted mb-0">Registro histórico de todas las asignaciones y devoluciones del sistema</p>
+        </div>
+        <div>
+            <button type="button" class="btn btn-success me-2" onclick="exportarExcel()">
+                <i class="fas fa-file-excel me-2"></i>Exportar Excel
+            </button>
+            <a href="index.php?route=reportes" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas Generales -->
+<div class="row g-4 mb-4">
+    <!-- Total de Registros -->
+    <div class="col-md-3">
+        <div class="card border-primary h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="fas fa-database fa-3x text-primary"></i>
+                </div>
+                <h3 class="mb-0 fw-bold text-primary"><?= count($historial) ?></h3>
+                <p class="text-muted small mb-0">Total de Registros</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asignaciones Activas -->
+    <div class="col-md-3">
+        <div class="card border-success h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="fas fa-check-circle fa-3x text-success"></i>
+                </div>
+                <h3 class="mb-0 fw-bold text-success">
+                    <?= count(array_filter($historial, fn($h) => $h['estado'] === 'activa')) ?>
+                </h3>
+                <p class="text-muted small mb-0">Activas</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Devoluciones -->
+    <div class="col-md-3">
+        <div class="card border-warning h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="fas fa-undo fa-3x text-warning"></i>
+                </div>
+                <h3 class="mb-0 fw-bold text-warning">
+                    <?= count(array_filter($historial, fn($h) => $h['estado'] === 'devuelta')) ?>
+                </h3>
+                <p class="text-muted small mb-0">Devueltas</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canceladas -->
+    <div class="col-md-3">
+        <div class="card border-danger h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="fas fa-times-circle fa-3x text-danger"></i>
+                </div>
+                <h3 class="mb-0 fw-bold text-danger">
+                    <?= count(array_filter($historial, fn($h) => $h['estado'] === 'cancelada')) ?>
+                </h3>
+                <p class="text-muted small mb-0">Canceladas</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros Avanzados -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros Avanzados</h6>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="" id="formFiltros">
+            <input type="hidden" name="route" value="reportes">
+            <input type="hidden" name="action" value="historialAsignaciones">
+            
+            <div class="row">
+                <!-- Estado -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos los estados</option>
+                        <option value="activa">Activas</option>
+                        <option value="devuelta">Devueltas</option>
+                        <option value="cancelada">Canceladas</option>
+                    </select>
+                </div>
+
+                <!-- Rango de Fechas -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Fecha Desde</label>
+                    <input type="date" name="fecha_desde" class="form-control">
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Fecha Hasta</label>
+                    <input type="date" name="fecha_hasta" class="form-control" value="<?= date('Y-m-d') ?>">
+                </div>
+
+                <!-- Colaborador -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Colaborador</label>
+                    <input type="text" name="colaborador" class="form-control" placeholder="Buscar por nombre...">
+                </div>
+
+                <!-- Botones -->
+                <div class="col-md-12">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Filtrar
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()">
+                            <i class="fas fa-times me-2"></i>Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de Historial -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="fas fa-table me-2"></i>Historial de Asignaciones</h5>
+    </div>
+    <div class="card-body">
+        <?php if (empty($historial)): ?>
+            <div class="alert alert-info text-center py-4">
+                <i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
+                <p class="mb-0">No hay registros de asignaciones</p>
+            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle" id="tablaHistorial">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha Asignación</th>
+                            <th>Colaborador</th>
+                            <th>Equipo</th>
+                            <th>Categoría</th>
+                            <th>Estado</th>
+                            <th>Fecha Devolución</th>
+                            <th>Días de Uso</th>
+                            <th>Responsable</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($historial as $reg): ?>
+                            <tr>
+                                <td><strong>#<?= $reg['id'] ?></strong></td>
+                                <td>
+                                    <?= date('d/m/Y', strtotime($reg['fecha_asignacion'])) ?>
+                                    <br><small class="text-muted"><?= date('H:i', strtotime($reg['fecha_asignacion'])) ?></small>
+                                </td>
+                                <td>
+                                    <strong><?= htmlspecialchars($reg['colaborador_nombre'] . ' ' . $reg['colaborador_apellido']) ?></strong>
+                                    <br><small class="text-muted"><?= htmlspecialchars($reg['departamento'] ?? 'Sin dpto.') ?></small>
+                                </td>
+                                <td>
+                                    <strong><?= htmlspecialchars($reg['equipo_nombre']) ?></strong>
+                                    <br><small class="text-muted"><?= htmlspecialchars($reg['numero_serie'] ?? 'S/N') ?></small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        <?= htmlspecialchars($reg['categoria']) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php
+                                    $estadoBadges = [
+                                        'activa' => ['class' => 'success', 'icon' => 'check-circle', 'text' => 'Activa'],
+                                        'devuelta' => ['class' => 'warning', 'icon' => 'undo', 'text' => 'Devuelta'],
+                                        'cancelada' => ['class' => 'danger', 'icon' => 'times-circle', 'text' => 'Cancelada']
+                                    ];
+                                    $badge = $estadoBadges[$reg['estado']] ?? ['class' => 'secondary', 'icon' => 'question', 'text' => $reg['estado']];
+                                    ?>
+                                    <span class="badge bg-<?= $badge['class'] ?>">
+                                        <i class="fas fa-<?= $badge['icon'] ?> me-1"></i>
+                                        <?= $badge['text'] ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if ($reg['fecha_devolucion']): ?>
+                                        <?= date('d/m/Y', strtotime($reg['fecha_devolucion'])) ?>
+                                        <br><small class="text-muted"><?= date('H:i', strtotime($reg['fecha_devolucion'])) ?></small>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    if ($reg['estado'] === 'activa') {
+                                        $fecha = new DateTime($reg['fecha_asignacion']);
+                                        $hoy = new DateTime();
+                                        $dias = $fecha->diff($hoy)->days;
+                                        $badgeClass = $dias > 180 ? 'danger' : ($dias > 90 ? 'warning' : 'info');
+                                    } else {
+                                        if ($reg['fecha_devolucion']) {
+                                            $fechaAsig = new DateTime($reg['fecha_asignacion']);
+                                            $fechaDev = new DateTime($reg['fecha_devolucion']);
+                                            $dias = $fechaAsig->diff($fechaDev)->days;
+                                            $badgeClass = 'secondary';
+                                        } else {
+                                            $dias = 0;
+                                            $badgeClass = 'secondary';
+                                        }
+                                    }
+                                    ?>
+                                    <span class="badge bg-<?= $badgeClass ?>">
+                                        <?= $dias ?> días
+                                    </span>
+                                </td>
+                                <td>
+                                    <small><?= htmlspecialchars($reg['usuario_nombre'] ?? 'Sistema') ?></small>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" 
+                                                class="btn btn-sm btn-info btn-ver-detalle"
+                                                data-registro='<?= json_encode($reg) ?>'>
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Gráficos de Estadísticas -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Distribución por Estado</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="chartEstados"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Asignaciones por Mes</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="chartMeses"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // DataTable
+    $('#tablaHistorial').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        },
+        pageLength: 25,
+        order: [[1, 'desc']],
+        columnDefs: [
+            { orderable: false, targets: -1 }
+        ]
+    });
+    
+    // Ver Detalle
+    $('.btn-ver-detalle').on('click', function() {
+        const registro = $(this).data('registro');
+        
+        const estadoTexto = registro.estado === 'activa' ? 'Activa' : 
+                           registro.estado === 'devuelta' ? 'Devuelta' : 'Cancelada';
+        
+        Swal.fire({
+            title: 'Detalle de Asignación #' + registro.id,
+            html: `
+                <div class="text-start">
+                    <h6 class="border-bottom pb-2 mb-3">Información del Colaborador</h6>
+                    <p><strong>Nombre:</strong> ${registro.colaborador_nombre} ${registro.colaborador_apellido}</p>
+                    <p><strong>Departamento:</strong> ${registro.departamento || 'No especificado'}</p>
+                    <p><strong>Email:</strong> ${registro.colaborador_email || 'No especificado'}</p>
+                    
+                    <h6 class="border-bottom pb-2 mb-3 mt-4">Información del Equipo</h6>
+                    <p><strong>Equipo:</strong> ${registro.equipo_nombre}</p>
+                    <p><strong>Serie:</strong> ${registro.numero_serie || 'N/A'}</p>
+                    <p><strong>Categoría:</strong> ${registro.categoria}</p>
+                    
+                    <h6 class="border-bottom pb-2 mb-3 mt-4">Detalles de la Asignación</h6>
+                    <p><strong>Estado:</strong> <span class="badge bg-secondary">${estadoTexto}</span></p>
+                    <p><strong>Fecha Asignación:</strong> ${new Date(registro.fecha_asignacion).toLocaleString('es-PA')}</p>
+                    ${registro.fecha_devolucion ? `<p><strong>Fecha Devolución:</strong> ${new Date(registro.fecha_devolucion).toLocaleString('es-PA')}</p>` : ''}
+                    ${registro.observaciones ? `<p><strong>Observaciones:</strong> ${registro.observaciones}</p>` : ''}
+                    ${registro.motivo_devolucion ? `<p><strong>Motivo Devolución:</strong> ${registro.motivo_devolucion}</p>` : ''}
+                </div>
+            `,
+            width: 600,
+            confirmButtonColor: '#1B3C53'
+        });
+    });
+    
+    // Gráficos
+    crearGraficos();
+});
+
+function limpiarFiltros() {
+    document.getElementById('formFiltros').reset();
+}
+
+function exportarExcel() {
+    const table = document.getElementById('tablaHistorial');
+    let csv = [];
+    
+    // BOM para UTF-8
+    csv.push('\ufeff');
+    
+    // Encabezados
+    const headers = [];
+    table.querySelectorAll('thead th').forEach(th => {
+        headers.push(th.textContent.trim());
+    });
+    csv.push(headers.join(','));
+    
+    // Datos
+    table.querySelectorAll('tbody tr').forEach(tr => {
+        const row = [];
+        tr.querySelectorAll('td').forEach((td, index) => {
+            if (index < 9) { // Saltar columna de acciones
+                row.push('"' + td.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csv.push(row.join(','));
+    });
+    
+    const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'historial_asignaciones_' + new Date().toISOString().split('T')[0] + '.csv';
+    link.click();
+}
+
+function crearGraficos() {
+    // Datos del historial
+    const historial = <?= json_encode($historial) ?>;
+    
+    // Gráfico de Estados
+    const activas = historial.filter(h => h.estado === 'activa').length;
+    const devueltas = historial.filter(h => h.estado === 'devuelta').length;
+    const canceladas = historial.filter(h => h.estado === 'cancelada').length;
+    
+    new Chart(document.getElementById('chartEstados'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Activas', 'Devueltas', 'Canceladas'],
+            datasets: [{
+                data: [activas, devueltas, canceladas],
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+            }]
+        }
+    });
+    
+    // Gráfico de Meses (últimos 6 meses)
+    const meses = {};
+    historial.forEach(h => {
+        const fecha = new Date(h.fecha_asignacion);
+        const mes = fecha.toLocaleDateString('es-PA', { year: 'numeric', month: 'short' });
+        meses[mes] = (meses[mes] || 0) + 1;
+    });
+    
+    new Chart(document.getElementById('chartMeses'), {
+        type: 'line',
+        data: {
+            labels: Object.keys(meses),
+            datasets: [{
+                label: 'Asignaciones',
+                data: Object.values(meses),
+                borderColor: '#1B3C53',
+                backgroundColor: 'rgba(27, 60, 83, 0.1)',
+                tension: 0.4
+            }]
+        }
+    });
+}
+</script>
+
+<style>
+@media print {
+    .btn, .card-header, .page-header .btn-group {
+        display: none !important;
+    }
+}
+</style>

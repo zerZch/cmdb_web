@@ -39,6 +39,8 @@ use App\Controllers\UsuarioController;
 use App\Controllers\CategoriaController;
 use App\Controllers\EquipoController;
 use App\Controllers\ColaboradorController;
+use App\Controllers\AsignacionController;
+use App\Controllers\NecesidadController;
 use App\Controllers\BajaController;
 use App\Controllers\DonacionController;
 use App\Controllers\ReporteController;
@@ -54,6 +56,8 @@ $routes = [
     'categorias'    => CategoriaController::class,
     'equipos'       => EquipoController::class,  // ← NUEVA RUTA
     'colaboradores' => ColaboradorController::class,
+    'asignaciones'  => AsignacionController::class,
+    'necesidades'   => NecesidadController::class,
     'bajas'         => BajaController::class,
     'donaciones'    => DonacionController::class,
     'reportes'      => ReporteController::class,
