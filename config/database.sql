@@ -46,6 +46,28 @@ CREATE TABLE IF NOT EXISTS `asignaciones` (
   KEY `idx_colaborador` (`colaborador_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+INSERT INTO `asignaciones` (`id`, `equipo_id`, `usuario_id`, `colaborador_id`, `fecha_asignacion`, `fecha_devolucion`, `estado`, `observaciones`, `created_at`, `updated_at`) VALUES
+(1, 1, 2, 3, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 20:40:29', '2025-12-08 20:40:29'),
+(2, 2, 2, 3, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 20:41:49', '2025-12-08 20:41:49'),
+(3, 2, 2, 1, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 21:18:20', '2025-12-08 21:18:20'),
+(4, 1, 2, 2, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 21:48:10', '2025-12-08 21:48:10'),
+(5, 6, 2, 3, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 21:48:21', '2025-12-08 21:48:21'),
+(6, 4, 2, 2, '2025-12-07 00:00:00', NULL, 'activa', '', '2025-12-08 21:52:38', '2025-12-08 21:52:38'),
+(7, 1, 2, 1, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 22:06:19', '2025-12-08 22:06:19'),
+(8, 1, 1, 1, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 22:07:10', '2025-12-08 22:07:10'),
+(9, 2, 1, 2, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 22:07:49', '2025-12-08 22:07:49'),
+(10, 1, 1, 4, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 22:14:55', '2025-12-08 22:14:55'),
+(11, 10, 1, 5, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 22:17:27', '2025-12-08 22:17:27'),
+(12, 1, 1, 2, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 22:39:27', '2025-12-08 22:39:27'),
+(13, 1, 1, 4, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 22:49:01', '2025-12-08 22:49:01'),
+(14, 1, 1, 1, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 22:57:41', '2025-12-08 22:57:41'),
+(15, 2, 1, 3, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 22:57:51', '2025-12-08 22:57:51'),
+(16, 2, 1, 3, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-08 23:16:36', '2025-12-08 23:16:36'),
+(17, 1, 1, 3, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-09 00:08:20', '2025-12-09 00:08:20'),
+(18, 4, 1, 3, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-09 00:08:34', '2025-12-09 00:08:34'),
+(19, 2, 1, 2, '2025-12-08 00:00:00', NULL, 'activa', '', '2025-12-09 00:16:34', '2025-12-09 00:16:34'),
+(20, 10, 1, 2, '2025-12-16 00:00:00', '2025-12-08 00:00:00', 'devuelta', 'todo correcto en la compu para su devolucion, mas nada que añadird\nMotivo: fin_proyecto', '2025-12-09 00:16:54', '2025-12-09 00:38:56');
+
 --
 -- Triggers `asignaciones`
 --
@@ -135,6 +157,9 @@ CREATE TABLE IF NOT EXISTS `bajas_equipos` (
   KEY `idx_estado` (`estado`),
   KEY `idx_motivo` (`motivo_baja`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registro de bajas y descartes de equipos con criterio técnico';
+
+INSERT INTO `bajas_equipos` (`id`, `equipo_id`, `usuario_responsable_id`, `fecha_baja`, `motivo_baja`, `criterio_tecnico`, `valor_residual`, `metodo_disposicion`, `empresa_disposicion`, `numero_acta`, `documentos_adjuntos`, `observaciones`, `estado`, `aprobado_por`, `fecha_aprobacion`, `created_at`, `updated_at`) VALUES
+(1, 7, 1, '2025-12-08', 'daño_irreparable', 'el equipo presentA fallas', 230.00, 'venta', 'Fundacion R', '12893003', NULL, 'nada', 'pendiente', NULL, NULL, '2025-12-08 23:29:18', '2025-12-08 23:29:18');
 
 --
 -- Triggers `bajas_equipos`
@@ -277,6 +302,9 @@ CREATE TABLE IF NOT EXISTS `donaciones_equipos` (
   KEY `idx_fecha` (`fecha_donacion`),
   KEY `idx_entidad` (`entidad_beneficiada`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registro de donaciones de equipos a entidades externas';
+
+INSERT INTO `donaciones_equipos` (`id`, `equipo_id`, `usuario_responsable_id`, `fecha_donacion`, `entidad_beneficiada`, `tipo_entidad`, `ruc_entidad`, `contacto_nombre`, `contacto_telefono`, `contacto_email`, `direccion_entidad`, `valor_donacion`, `motivo_donacion`, `condicion_equipo`, `numero_acta`, `certificado_donacion`, `observaciones`, `created_at`, `updated_at`) VALUES
+(1, 6, 1, '2025-12-08', 'Fundacion manos a la obra', 'fundacion', '8-1020-1086', 'Wanytchy', '6062-3436', 'waytchyfranncois@gmail.com', '266 huxley Dr brick', 30.00, 'motivo', 'bueno', '12893003', 'uploads/donaciones/certificado_1765236508_69375f1cbedb2.jpeg', '', '2025-12-08 23:28:28', '2025-12-08 23:28:28');
 
 --
 -- Triggers `donaciones_equipos`
@@ -482,7 +510,6 @@ CREATE TRIGGER `trg_equipos_cambio_estado` AFTER UPDATE ON `equipos` FOR EACH RO
 END
 $$
 DELIMITER ;
-
 -- --------------------------------------------------------
 
 --
@@ -507,7 +534,7 @@ CREATE TABLE IF NOT EXISTS `historial_movimientos` (
   KEY `idx_tipo` (`tipo_movimiento`),
   KEY `idx_fecha` (`created_at`),
   KEY `idx_colaborador` (`colaborador_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Trazabilidad completa de todos los movimientos de equipos';
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Trazabilidad completa de todos los movimientos de equipos';
 
 --
 -- Dumping data for table `historial_movimientos`
@@ -520,7 +547,33 @@ INSERT INTO `historial_movimientos` (`id`, `equipo_id`, `tipo_movimiento`, `usua
 (4, 3, 'compra', 1, NULL, NULL, 'disponible', 'Compra inicial del equipo', NULL, '2025-11-30 05:08:39'),
 (5, 5, 'compra', 1, NULL, NULL, 'disponible', 'Compra inicial del equipo', NULL, '2025-11-30 05:08:39'),
 (8, 14, 'cambio_estado', NULL, NULL, 'disponible', '', 'Cambio automático de estado de disponible a ', NULL, '2025-12-04 05:42:13'),
-(9, 13, 'cambio_estado', NULL, NULL, 'disponible', '', 'Cambio automático de estado de disponible a ', NULL, '2025-12-04 12:16:04');
+(9, 13, 'cambio_estado', NULL, NULL, 'disponible', '', 'Cambio automático de estado de disponible a ', NULL, '2025-12-04 12:16:04'),
+(10, 1, 'asignacion', 2, 3, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(11, 2, 'asignacion', 2, 3, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(12, 2, 'asignacion', 2, 1, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(13, 1, 'asignacion', 2, 2, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(14, 6, 'asignacion', 2, 3, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(15, 4, 'asignacion', 2, 2, NULL, 'asignado', '', NULL, '2025-12-07 05:00:00'),
+(16, 1, 'asignacion', 2, 1, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(17, 1, 'asignacion', 1, 1, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(18, 2, 'asignacion', 1, 2, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(19, 1, 'asignacion', 1, 4, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(20, 10, 'asignacion', 1, 5, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(21, 1, 'asignacion', 1, 2, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(22, 1, 'asignacion', 1, 4, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(23, 1, 'asignacion', 1, 1, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(24, 2, 'asignacion', 1, 3, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(25, 2, 'asignacion', 1, 3, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(26, 6, 'donacion', 1, NULL, NULL, 'donado', 'Donado a: Fundacion manos a la obra', '{\"valor\": 30.00, \"entidad\": \"Fundacion manos a la obra\", \"tipo_entidad\": \"fundacion\"}', '2025-12-08 05:00:00'),
+(27, 7, 'baja', 1, NULL, NULL, 'dado_de_baja', 'el equipo presentA fallas', '{\"motivo\": \"daño_irreparable\", \"numero_acta\": \"12893003\"}', '2025-12-08 05:00:00'),
+(28, 1, 'asignacion', 1, 3, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(29, 4, 'asignacion', 1, 3, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(30, 2, 'asignacion', 1, 2, NULL, 'asignado', '', NULL, '2025-12-08 05:00:00'),
+(31, 2, 'asignacion', 1, 2, 'disponible', 'asignado', '', NULL, '2025-12-09 00:16:34'),
+(32, 10, 'asignacion', 1, 2, NULL, 'asignado', '', NULL, '2025-12-16 05:00:00'),
+(33, 10, 'asignacion', 1, 2, 'disponible', 'asignado', '', NULL, '2025-12-09 00:16:54'),
+(34, 10, 'devolucion', 1, 2, 'asignado', 'disponible', 'todo correcto en la compu para su devolucion, mas nada que añadird\nMotivo: fin_proyecto', NULL, '2025-12-08 05:00:00'),
+(35, 10, 'devolucion', 1, 2, 'asignado', 'disponible', 'todo correcto en la compu para su devolucion, mas nada que añadird\nMotivo: fin_proyecto', NULL, '2025-12-09 00:38:56');
 
 -- --------------------------------------------------------
 
@@ -567,7 +620,7 @@ CREATE TABLE IF NOT EXISTS `logs_acceso` (
   KEY `idx_exitoso` (`exitoso`),
   KEY `idx_created` (`created_at`),
   KEY `idx_fingerprint` (`fingerprint`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registro de auditoría de todos los accesos al sistema';
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registro de auditoría de todos los accesos al sistema';
 
 --
 -- Dumping data for table `logs_acceso`
@@ -587,41 +640,64 @@ INSERT INTO `logs_acceso` (`id`, `usuario`, `ip_address`, `user_agent`, `pais`, 
 (11, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'Local', '887da1b633488aa55bbec9682bbc60764f06d4f8a2a67d2bbb9c5dd6b70b4658', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"887da1b633488aa55bbec9682bbc60764f06d4f8a2a67d2bbb9c5dd6b70b4658\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-04 00:31:13'),
 (12, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'Local', '887da1b633488aa55bbec9682bbc60764f06d4f8a2a67d2bbb9c5dd6b70b4658', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"887da1b633488aa55bbec9682bbc60764f06d4f8a2a67d2bbb9c5dd6b70b4658\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-04 03:10:15'),
 (13, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-04 12:05:47'),
-(14, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-08 16:10:29'),
-(15, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=reportes&action=inventarioPorCategoria\", \"user_id\": 1, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-08 16:11:19'),
-(16, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"colaborador\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 2, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-08 16:11:22'),
-(17, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=reportes\", \"user_id\": 2, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-08 16:11:43'),
-(18, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"colaborador\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 2, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-08 16:45:29'),
-(19, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=reportes\", \"user_id\": 2, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-08 16:45:42'),
-(20, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"colaborador\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 2, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-08 17:08:55'),
-(21, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=reportes\", \"user_id\": 2, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-08 17:09:12'),
-(22, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-08 17:09:16'),
-(23, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=colaboradores\", \"user_id\": 1, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-08 21:04:21'),
-(24, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-08 21:04:27'),
-(25, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=reportes\", \"user_id\": 1, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:04:40'),
-(26, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"colaborador\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 2, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:04:47'),
-(27, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=colaboradores\", \"user_id\": 2, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:06:18'),
-(28, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"colaborador\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 2, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:06:30'),
-(29, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=equipos\", \"user_id\": 2, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:13:27'),
-(30, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:13:34'),
-(31, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=usuarios\", \"user_id\": 1, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:15:14'),
-(32, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:40:30'),
-(33, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=asignaciones\", \"user_id\": 1, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:40:57'),
-(34, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"colaborador\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 2, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:42:24'),
-(35, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/\", \"user_id\": 2, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:42:59'),
-(36, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"colaborador\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 2, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:43:02'),
-(37, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=dashboard&action=index\", \"user_id\": 2, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:43:14'),
-(38, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:43:16'),
-(39, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=equipos&action=edit&id=11\", \"user_id\": 1, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:44:01'),
-(40, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"colaborador\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 2, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:44:09'),
-(41, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=asignaciones\", \"user_id\": 2, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:44:19'),
-(42, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 00:44:23'),
-(43, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=equipos\", \"user_id\": 1, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 01:03:08'),
-(44, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"colaborador\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 2, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 01:03:45'),
-(45, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=dashboard&action=index\", \"user_id\": 2, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 01:03:50'),
-(46, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"colaborador\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 2, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 01:03:56'),
-(47, 'colaborador@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=donaciones\", \"user_id\": 2, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 01:08:48'),
-(48, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'Local', '757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"757cefdae6f3993029c771b8c7f3e4f7f75222751bcc3c6bc2c4ddcdd7e49533\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es-US;q=0.8,es;q=0.7\"}', '2025-12-09 01:08:55');
+(14, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'Local', '2e4f5ae6d4f5e95537e12c998733517fbc5f365a16d6cdb443d803b745f2888f', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"2e4f5ae6d4f5e95537e12c998733517fbc5f365a16d6cdb443d803b745f2888f\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es;q=0.8\"}', '2025-12-08 22:06:38'),
+(15, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'Local', '2e4f5ae6d4f5e95537e12c998733517fbc5f365a16d6cdb443d803b745f2888f', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=asignaciones&action=crear\", \"user_id\": 1, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es;q=0.8\"}', '2025-12-08 22:17:03'),
+(16, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'Local', '2e4f5ae6d4f5e95537e12c998733517fbc5f365a16d6cdb443d803b745f2888f', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"2e4f5ae6d4f5e95537e12c998733517fbc5f365a16d6cdb443d803b745f2888f\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es;q=0.8\"}', '2025-12-08 22:17:14'),
+(17, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'Local', '2e4f5ae6d4f5e95537e12c998733517fbc5f365a16d6cdb443d803b745f2888f', 1, 'logout', '{\"action\": \"logout\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=asignaciones&action=crear\", \"user_id\": 1, \"request_uri\": \"/cmdb_web/public/index.php?route=logout&action=logout\", \"request_method\": \"GET\", \"accept_language\": \"en-US,en;q=0.9,es;q=0.8\"}', '2025-12-08 22:57:19'),
+(18, 'admin@cmdb.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'Local', '2e4f5ae6d4f5e95537e12c998733517fbc5f365a16d6cdb443d803b745f2888f', 1, NULL, '{\"rol\": \"admin\", \"referer\": \"http://localhost/cmdb_web/public/index.php?route=login&action=index\", \"user_id\": 1, \"dispositivo\": \"2e4f5ae6d4f5e95537e12c998733517fbc5f365a16d6cdb443d803b745f2888f\", \"request_uri\": \"/cmdb_web/public/index.php?route=login&action=login\", \"request_method\": \"POST\", \"accept_language\": \"en-US,en;q=0.9,es;q=0.8\"}', '2025-12-08 22:57:30');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `necesidades`
+--
+
+DROP TABLE IF EXISTS `necesidades`;
+CREATE TABLE IF NOT EXISTS `necesidades` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `colaborador_id` int NOT NULL,
+  `categoria_id` int DEFAULT NULL,
+  `tipo_equipo` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Ej: Laptop, Mouse, Teclado',
+  `justificacion` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Por qué necesita el equipo',
+  `urgencia` enum('baja','normal','alta') COLLATE utf8mb4_unicode_ci DEFAULT 'normal',
+  `estado` enum('pendiente','aprobada','rechazada','completada') COLLATE utf8mb4_unicode_ci DEFAULT 'pendiente',
+  `administrador_id` int DEFAULT NULL COMMENT 'Admin que aprobó/rechazó',
+  `observaciones_admin` text COLLATE utf8mb4_unicode_ci COMMENT 'Comentarios del administrador',
+  `equipo_asignado_id` int DEFAULT NULL COMMENT 'Equipo que se le asignó',
+  `fecha_solicitud` date NOT NULL,
+  `fecha_respuesta` date DEFAULT NULL,
+  `fecha_completada` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_colaborador` (`colaborador_id`),
+  KEY `idx_estado` (`estado`),
+  KEY `idx_categoria` (`categoria_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `necesidades`
+--
+
+INSERT INTO `necesidades` (`id`, `colaborador_id`, `categoria_id`, `tipo_equipo`, `justificacion`, `urgencia`, `estado`, `administrador_id`, `observaciones_admin`, `equipo_asignado_id`, `fecha_solicitud`, `fecha_respuesta`, `fecha_completada`, `created_at`, `updated_at`) VALUES
+(1, 1, 2, 'Laptop', 'Trabajo adicional', 'normal', 'aprobada', 1, '', NULL, '2025-12-08', '2025-12-08', NULL, '2025-12-09 00:10:34', '2025-12-09 00:48:37');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `solicitudes`
+--
+
+DROP TABLE IF EXISTS `solicitudes`;
+CREATE TABLE IF NOT EXISTS `solicitudes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `colaborador_id` int NOT NULL,
+  `equipo_id` int NOT NULL,
+  `descripcion` text,
+  `estado` enum('pendiente','aprobado','rechazado') DEFAULT 'pendiente',
+  `fecha_solicitud` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -830,6 +906,17 @@ DROP TABLE IF EXISTS `v_reporte_depreciacion`;
 
 DROP VIEW IF EXISTS `v_reporte_depreciacion`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_reporte_depreciacion`  AS SELECT `e`.`id` AS `id_equipo`, `e`.`codigo_inventario` AS `codigo_inventario`, `e`.`nombre` AS `nombre_equipo`, `e`.`descripcion` AS `descripcion`, `e`.`categoria_id` AS `categoria_id`, `c`.`nombre` AS `categoria`, `e`.`fecha_adquisicion` AS `fecha_adquisicion`, `e`.`costo_adquisicion` AS `costo_adquisicion`, `e`.`vida_util_anos` AS `vida_util_anos`, timestampdiff(YEAR,`e`.`fecha_adquisicion`,curdate()) AS `anos_uso`, (`e`.`costo_adquisicion` / `e`.`vida_util_anos`) AS `depreciacion_anual`, (`e`.`costo_adquisicion` / (`e`.`vida_util_anos` * 12)) AS `depreciacion_mensual`, round(((`e`.`costo_adquisicion` / `e`.`vida_util_anos`) * timestampdiff(YEAR,`e`.`fecha_adquisicion`,curdate())),2) AS `depreciacion_acumulada`, round((`e`.`costo_adquisicion` - ((`e`.`costo_adquisicion` / `e`.`vida_util_anos`) * timestampdiff(YEAR,`e`.`fecha_adquisicion`,curdate()))),2) AS `valor_libro`, round(((((`e`.`costo_adquisicion` / `e`.`vida_util_anos`) * timestampdiff(YEAR,`e`.`fecha_adquisicion`,curdate())) / `e`.`costo_adquisicion`) * 100),2) AS `porcentaje_depreciado` FROM (`equipos` `e` left join `categorias` `c` on((`c`.`id` = `e`.`categoria_id`))) ;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `necesidades`
+--
+ALTER TABLE `necesidades`
+  ADD CONSTRAINT `fk_necesidad_categoria` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_necesidad_colaborador` FOREIGN KEY (`colaborador_id`) REFERENCES `colaboradores` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
