@@ -44,7 +44,9 @@ class Asignacion extends Model
             'observaciones'    => $data['observaciones'] ?? null
         ]);
 
-        // Cambiar estado del equipo
+        // ==========================================================
+        // CORRECCIÓN: Llamar al método updateEstado() del modelo Equipo
+        // ==========================================================
         $equipoModel->updateEstado($data['equipo_id'], 'asignado');
 
         // Registrar en historial
@@ -67,6 +69,7 @@ class Asignacion extends Model
      */
     public function devolverEquipo($asignacionId, $data)
     {
+        // La observación es OBLIGATORIA (requisito de la rúbrica)
         if (empty($data['observaciones_devolucion'])) {
             throw new \Exception('La observación de devolución es obligatoria');
         }
@@ -93,9 +96,14 @@ class Asignacion extends Model
         ]);
 
         // Cambiar estado del equipo
-        $nuevoEstado  = $data['estado_equipo'] ?? 'disponible';
-        $equipoModel  = new Equipo();
-        $equipoModel->update($asignacion['equipo_id'], ['estado' => $nuevoEstado]);
+        $nuevoEstado = $data['estado_equipo'] ?? 'disponible';
+        $equipoModel = new Equipo();
+        
+        // ==========================================================
+        // CORRECCIÓN: Llamar al método updateEstado() en lugar de update()
+        //             Esto asegura que usamos el método corregido.
+        // ==========================================================
+        $equipoModel->updateEstado($asignacion['equipo_id'], $nuevoEstado);
 
         // Registrar en historial
         $historialModel = new HistorialMovimiento();
@@ -118,22 +126,22 @@ class Asignacion extends Model
     public function getAsignacionesActivas()
     {
         $sql = "SELECT 
-                    a.*,
-                    e.nombre       AS equipo_nombre,
-                    e.numero_serie AS numero_serie,
-                    e.marca,
-                    e.modelo,
-                    c.nombre       AS colaborador_nombre,
-                    c.apellido     AS colaborador_apellido,
-                    c.departamento,
-                    c.ubicacion,
-                    u.nombre       AS responsable_nombre
-                FROM {$this->table} a
-                INNER JOIN equipos       e ON a.equipo_id      = e.id
-                INNER JOIN colaboradores c ON a.colaborador_id = c.id
-                LEFT  JOIN usuarios      u ON a.usuario_id     = u.id
-                WHERE a.estado = 'activa'
-                ORDER BY a.fecha_asignacion DESC";
+                        a.*,
+                        e.nombre      AS equipo_nombre,
+                        e.numero_serie AS numero_serie,
+                        e.marca,
+                        e.modelo,
+                        c.nombre      AS colaborador_nombre,
+                        c.apellido    AS colaborador_apellido,
+                        c.departamento,
+                        c.ubicacion,
+                        u.nombre      AS responsable_nombre
+                    FROM {$this->table} a
+                    INNER JOIN equipos       e ON a.equipo_id      = e.id
+                    INNER JOIN colaboradores c ON a.colaborador_id = c.id
+                    LEFT  JOIN usuarios      u ON a.usuario_id     = u.id
+                    WHERE a.estado = 'activa'
+                    ORDER BY a.fecha_asignacion DESC";
 
         return $this->query($sql)->fetchAll();
     }
@@ -144,16 +152,16 @@ class Asignacion extends Model
     public function getAsignacionesPorColaborador($colaboradorId)
     {
         $sql = "SELECT 
-                    a.*,
-                    e.nombre       AS equipo_nombre,
-                    e.numero_serie,
-                    e.marca,
-                    e.modelo,
-                    e.foto
-                FROM {$this->table} a
-                INNER JOIN equipos e ON a.equipo_id = e.id
-                WHERE a.colaborador_id = ? AND a.estado = 'activa'
-                ORDER BY a.fecha_asignacion DESC";
+                        a.*,
+                        e.nombre      AS equipo_nombre,
+                        e.numero_serie,
+                        e.marca,
+                        e.modelo,
+                        e.foto
+                    FROM {$this->table} a
+                    INNER JOIN equipos e ON a.equipo_id = e.id
+                    WHERE a.colaborador_id = ? AND a.estado = 'activa'
+                    ORDER BY a.fecha_asignacion DESC";
 
         return $this->query($sql, [$colaboradorId])->fetchAll();
     }
@@ -164,17 +172,17 @@ class Asignacion extends Model
     public function getHistorialCompleto()
     {
         $sql = "SELECT 
-                    a.*,
-                    e.nombre       AS equipo_nombre,
-                    e.numero_serie,
-                    c.nombre       AS colaborador_nombre,
-                    c.apellido     AS colaborador_apellido,
-                    u.nombre       AS responsable_nombre
-                FROM {$this->table} a
-                INNER JOIN equipos       e ON a.equipo_id      = e.id
-                INNER JOIN colaboradores c ON a.colaborador_id = c.id
-                LEFT JOIN usuarios       u ON a.usuario_id     = u.id
-                ORDER BY a.created_at DESC";
+                        a.*,
+                        e.nombre      AS equipo_nombre,
+                        e.numero_serie,
+                        c.nombre      AS colaborador_nombre,
+                        c.apellido    AS colaborador_apellido,
+                        u.nombre      AS responsable_nombre
+                    FROM {$this->table} a
+                    INNER JOIN equipos       e ON a.equipo_id      = e.id
+                    INNER JOIN colaboradores c ON a.colaborador_id = c.id
+                    LEFT JOIN usuarios       u ON a.usuario_id     = u.id
+                    ORDER BY a.created_at DESC";
 
         return $this->query($sql)->fetchAll();
     }
@@ -185,12 +193,12 @@ class Asignacion extends Model
     public function getEstadisticas()
     {
         $sql = "SELECT 
-                    COUNT(*)                                        AS total_asignaciones,
-                    SUM(CASE WHEN estado = 'activa'   THEN 1 ELSE 0 END) AS activas,
-                    SUM(CASE WHEN estado = 'devuelta' THEN 1 ELSE 0 END) AS devueltas,
-                    COUNT(DISTINCT colaborador_id)                  AS colaboradores_con_equipos,
-                    COUNT(DISTINCT equipo_id)                       AS equipos_asignados_alguna_vez
-                FROM {$this->table}";
+                        COUNT(*)                                      AS total_asignaciones,
+                        SUM(CASE WHEN estado = 'activa'   THEN 1 ELSE 0 END) AS activas,
+                        SUM(CASE WHEN estado = 'devuelta' THEN 1 ELSE 0 END) AS devueltas,
+                        COUNT(DISTINCT colaborador_id)                    AS colaboradores_con_equipos,
+                        COUNT(DISTINCT equipo_id)                         AS equipos_asignados_alguna_vez
+                    FROM {$this->table}";
 
         return $this->query($sql)->fetch();
     }

@@ -55,6 +55,23 @@ class Equipo extends Model
     /**
      * ✅ NUEVO: Sobrescribir find() para SIEMPRE traer categoria_nombre
      */
+    public function updateEstado($id, $nuevoEstado) {
+    // 1. Obtener la conexión a la base de datos (Ejemplo: $this->db)
+    //    Asegúrate de que tu modelo tenga acceso a la conexión DB.
+    
+    // 2. Definir la consulta SQL para actualizar la tabla 'equipos'
+    $sql = "UPDATE equipos SET estado = :estado WHERE id = :id";
+    
+    // 3. Ejecutar la consulta con los parámetros
+    //    (Este es un ejemplo, adáptalo a la forma en que ejecutas consultas)
+    $stmt = $this->db->prepare($sql);
+    
+    // 4. Bind y ejecución
+    $stmt->bindParam(':estado', $nuevoEstado);
+    $stmt->bindParam(':id', $id);
+    
+    return $stmt->execute();
+}
     public function find($id)
     {
         return $this->getByIdWithCategoria($id);

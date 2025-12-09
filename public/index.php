@@ -69,6 +69,7 @@ $routes = [
 try {
     $route = $_GET['route'] ?? 'dashboard';
     $action = $_GET['action'] ?? 'index';
+
     $actionAliases = [
         'reporte-depreciacion' => 'reporteDepreciacion',
         'generate-qr'          => 'generateQR',
@@ -86,6 +87,21 @@ try {
     $controllerClass = $routes[$route];
     $controller = new $controllerClass();
 
+    // LÓGICA ESPECIAL PARA ASIGNACIONES/DEVOLUCIONES:
+    // Distinguimos si la acción 'devolver' es para MOSTRAR el formulario (GET)
+    // o para PROCESAR el formulario (POST).
+    if ($route === 'asignaciones' && $action === 'devolver') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Si es POST, ejecuta la función de guardado
+            $controller->devolver();
+        } else {
+            // Si es GET, ejecuta la función que muestra el formulario
+            $controller->devolverForm();
+        }
+        exit; 
+    }
+    
+    // Lógica General (para el resto de acciones)
     // Validar que la acción existe
     if (!method_exists($controller, $action)) {
         throw new Exception("Acción no encontrada: {$action}", 404);
@@ -101,6 +117,7 @@ try {
         echo "<h1>404 - Página no encontrada</h1>";
         echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
     } else {
+        // Asumiendo que handleException() muestra el error de forma segura
         handleException($e);
     }
     exit;

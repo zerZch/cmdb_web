@@ -22,7 +22,7 @@
 
 <div class="card">
     <div class="card-body">
-        <form method="POST" action="index.php?route=asignaciones&action=procesarDevolucion">
+        <form method="POST" action="index.php?route=asignaciones&action=devolver">
             <input type="hidden" name="asignacion_id" value="<?= $asignacion['id'] ?>">
 
             <div class="alert alert-warning">

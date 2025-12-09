@@ -17,8 +17,9 @@ class AsignacionController extends BaseController
 
     public function __construct()
     {
-        $this->asignacionModel = new Asignacion();
-        $this->equipoModel     = new Equipo();
+        // Esta sección ha sido reescrita para eliminar posibles caracteres invisibles
+        $this->asignacionModel  = new Asignacion();
+        $this->equipoModel      = new Equipo();
         $this->colaboradorModel = new Colaborador();
     }
 
@@ -32,8 +33,8 @@ class AsignacionController extends BaseController
         $asignaciones = $this->asignacionModel->getAsignacionesActivas();
 
         $this->render('Views/asignaciones/index.php', [
-            'pageTitle'    => 'Gestión de Asignaciones',
-            'asignaciones' => $asignaciones
+            'pageTitle'     => 'Gestión de Asignaciones',
+            'asignaciones'  => $asignaciones
         ]);
     }
 
@@ -51,9 +52,9 @@ class AsignacionController extends BaseController
         $colaboradores = $this->colaboradorModel->getActivos();
 
         $this->render('Views/asignaciones/crear.php', [
-            'pageTitle'    => 'Asignar Equipo',
-            'equipos'      => $equiposDisponibles,
-            'colaboradores'=> $colaboradores
+            'pageTitle'     => 'Asignar Equipo',
+            'equipos'       => $equiposDisponibles,
+            'colaboradores' => $colaboradores
         ]);
     }
 
@@ -70,11 +71,11 @@ class AsignacionController extends BaseController
 
         // Datos que realmente existen en la tabla "asignaciones"
         $data = [
-            'equipo_id'       => $_POST['equipo_id']       ?? null,
-            'colaborador_id'  => $_POST['colaborador_id']  ?? null,
-            'usuario_id'      => currentUser()['id'],              // usuario que asigna
-            'fecha_asignacion'=> $_POST['fecha_asignacion'] ?? date('Y-m-d'),
-            'observaciones'   => $_POST['observaciones']   ?? null,
+            'equipo_id'         => $_POST['equipo_id']          ?? null,
+            'colaborador_id'    => $_POST['colaborador_id']     ?? null,
+            'usuario_id'        => currentUser()['id'],              // usuario que asigna
+            'fecha_asignacion'  => $_POST['fecha_asignacion']   ?? date('Y-m-d'),
+            'observaciones'     => $_POST['observaciones']      ?? null,
         ];
 
         try {
@@ -104,17 +105,39 @@ class AsignacionController extends BaseController
             redirect('asignaciones');
         }
 
+        // 1. Obtener datos de la asignación base
         $asignacion = $this->asignacionModel->find($id);
-        if (!$asignacion) {
+        if (!$asignacion || $asignacion['estado'] !== 'activa') { // Añadida verificación de estado
+            $this->setFlashMessage('error', 'Asignación no encontrada o inactiva.');
             redirect('asignaciones');
         }
 
+        // 2. Obtener datos del equipo asociado
         $equipo = $this->equipoModel->find($asignacion['equipo_id']);
+        if (!$equipo) {
+            $this->setFlashMessage('error', 'Equipo asociado no encontrado.');
+            redirect('asignaciones');
+        }
+        
+        // 3. Obtener datos del colaborador asociado
+        $colaborador = $this->colaboradorModel->find($asignacion['colaborador_id']);
+        if (!$colaborador) {
+             $this->setFlashMessage('error', 'Colaborador asociado no encontrado.');
+             redirect('asignaciones');
+        }
+
+        // 4. CORRECCIÓN: Fusionar los datos en $asignacion para la vista
+        $asignacion['equipo_nombre'] = $equipo['nombre'];
+        $asignacion['numero_serie'] = $equipo['numero_serie'];
+        $asignacion['colaborador_nombre'] = $colaborador['nombre'];
+        $asignacion['colaborador_apellido'] = $colaborador['apellido'];
+        // Si tienes el campo 'departamento' en Colaborador
+        $asignacion['departamento'] = $colaborador['departamento'] ?? 'N/A';
+
 
         $this->render('Views/asignaciones/devolver.php', [
             'pageTitle'  => 'Devolver Equipo',
             'asignacion' => $asignacion,
-            'equipo'     => $equipo
         ]);
     }
 
