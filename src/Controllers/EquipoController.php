@@ -162,6 +162,32 @@ class EquipoController extends BaseController
             'depreciacion' => $depreciacion
         ]);
     }
+    // En src/Controllers/EquipoController.php
+
+public function ver()
+{
+    $this->requireAuth();
+    $equipoId = $_GET['id'] ?? null;
+
+    if (!$equipoId) {
+        setFlashMessage('Error', 'ID de equipo no proporcionado.', 'error');
+        redirectTo('index.php?route=equipos'); 
+    }
+
+    // El error 404 se resuelve si este método existe
+    $equipo = $this->equipoModel->findById($equipoId); 
+
+    if (!$equipo) {
+        setFlashMessage('Error', 'Equipo no encontrado.', 'error');
+        redirectTo('index.php?route=equipos');
+    }
+
+    // 🚨 Importante: Debes crear el archivo de vista Views/equipos/ver.php
+    $this->render('Views/equipos/ver.php', [ 
+        'pageTitle' => 'Detalle de Equipo',
+        'equipo' => $equipo,
+    ]);
+}
     
     /**
      * Mostrar formulario de editar equipo

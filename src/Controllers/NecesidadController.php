@@ -41,20 +41,20 @@ class NecesidadController extends BaseController
      * MIS SOLICITUDES (Colaborador)
      */
     public function misSolicitudes()
-    {
-        $this->requireAuth();
+{
+    $this->requireAuth();
+    
+    // Asumiendo que el ID del colaborador está disponible en la sesión
+    $colaboradorId = currentUser()['colaborador_id'] ?? currentUser()['id']; 
+    
+    // DEBES tener un método getSolicitudesPorColaborador($id) en tu modelo Necesidad.php
+    $solicitudes = $this->necesidadModel->getSolicitudesPorColaborador($colaboradorId);
 
-        $userId = currentUser()['id'];
-        
-        // Obtener colaborador asociado al usuario (si aplica tu lógica)
-        // Por ahora asumo que el ID de usuario = ID de colaborador
-        $solicitudes = $this->necesidadModel->getPorColaborador($userId);
-
-        $this->render('Views/necesidades/mis_solicitudes.php', [
-            'pageTitle' => 'Mis Solicitudes',
-            'solicitudes' => $solicitudes
-        ]);
-    }
+    $this->render('Views/necesidades/mis_solicitudes.php', [
+        'pageTitle' => 'Mis Solicitudes de Equipos',
+        'solicitudes' => $solicitudes
+    ]);
+}
 
     /**
      * FORMULARIO NUEVA SOLICITUD
@@ -70,6 +70,7 @@ class NecesidadController extends BaseController
             'categorias' => $categorias
         ]);
     }
+    
 
     /**
      * GUARDAR SOLICITUD
@@ -111,28 +112,33 @@ class NecesidadController extends BaseController
     /**
      * VER DETALLE DE SOLICITUD
      */
-    public function ver()
-    {
-        $this->requireAuth();
+    // En src/Controllers/NecesidadController.php
 
-        $id = $_GET['id'] ?? null;
-        if (!$id) {
-            redirect('necesidades');
-            return;
-        }
+public function ver()
+{
+    $this->requireAuth();
 
-        $solicitud = $this->necesidadModel->find($id);
-        if (!$solicitud) {
-            setFlashMessage('Error', 'Solicitud no encontrada', 'error');
-            redirect('necesidades');
-            return;
-        }
+    $necesidadId = $_GET['id'] ?? null;
 
-        $this->render('Views/necesidades/ver.php', [
-            'pageTitle' => 'Detalle de Solicitud',
-            'solicitud' => $solicitud
-        ]);
+    if (!$necesidadId) {
+        setFlashMessage('Error', 'ID de solicitud no proporcionado.', 'error');
+        redirectTo('index.php?route=necesidades&action=misSolicitudes');
     }
+
+    // Asumimos que necesitas un método findById en el modelo de Necesidad
+    $necesidad = $this->necesidadModel->findById($necesidadId); 
+
+    if (!$necesidad) {
+        setFlashMessage('Error', 'Solicitud no encontrada.', 'error');
+        redirectTo('index.php?route=necesidades&action=misSolicitudes');
+    }
+
+    // Esta es la línea que fallaba; ahora crearemos el archivo.
+    $this->render('Views/necesidades/ver.php', [
+        'pageTitle' => 'Detalle de Solicitud',
+        'necesidad' => $necesidad,
+    ]);
+}
 
     /**
      * APROBAR SOLICITUD
@@ -197,6 +203,7 @@ class NecesidadController extends BaseController
 
         redirect('necesidades');
     }
+    
 
     /**
      * COMPLETAR SOLICITUD (cuando se asigna equipo)

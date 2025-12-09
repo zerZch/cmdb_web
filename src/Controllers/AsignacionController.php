@@ -144,37 +144,80 @@ class AsignacionController extends BaseController
     /**
      * GUARDAR DEVOLUCIÓN
      */
-    public function devolver()
-    {
-        $this->requireAuth();
+    // En src/Controllers/AsignacionController.php
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('asignaciones');
-        }
-
-        $asignacionId = $_POST['asignacion_id'] ?? null;
-
-        $data = [
-            'observaciones_devolucion' => $_POST['observaciones_devolucion'] ?? '',
-            'motivo_devolucion'        => $_POST['motivo_devolucion'] ?? '',
-            'estado_equipo'            => $_POST['estado_equipo'] ?? 'disponible',
-            'usuario_id'               => currentUser()['id'],
-        ];
-
-        try {
-            $this->asignacionModel->devolverEquipo($asignacionId, $data);
-
-            setFlashMessage(
-                'Devolución Registrada',
-                'El equipo ha sido devuelto correctamente.',
-                'success'
-            );
-        } catch (\Exception $e) {
-            setFlashMessage('Error', $e->getMessage(), 'error');
-        }
-
-        redirect('asignaciones');
+public function devolver()
+{
+    $this->requireAuth();
+    
+    // 1. Validar que la solicitud sea POST y que existan los campos necesarios
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['asignacion_id'])) {
+        setFlashMessage('Error', 'Solicitud inválida.', 'error');
+        redirectTo('index.php?route=asignaciones&action=misEquipos');
     }
+
+    $asignacionId = $_POST['asignacion_id'];
+    $observaciones = $_POST['observaciones'] ?? 'Sin observaciones al devolver.';
+    $estadoFinalEquipo = $_POST['estado_final'] ?? 'disponible'; // Podría ser 'disponible' o 'dañado'
+
+    try {
+        // 2. Ejecutar la lógica en el Modelo
+        $success = $this->asignacionModel->devolverEquipo(
+            $asignacionId, 
+            $observaciones, 
+            $estadoFinalEquipo
+        );
+
+        if ($success) {
+            setFlashMessage('Éxito', 'Equipo devuelto correctamente. La asignación ha finalizado.', 'success');
+        } else {
+            setFlashMessage('Error', 'No se pudo completar la devolución.', 'error');
+        }
+    } catch (\Exception $e) {
+        setFlashMessage('Error', 'Error del sistema: ' . $e->getMessage(), 'error');
+    }
+    
+
+    // 3. Redirigir de vuelta a "Mis Equipos" o al historial
+    redirectTo('index.php?route=asignaciones&action=misEquipos');
+}
+    public function historialColaborador()
+{
+    $this->requireAuth();
+    $colaboradorId = currentUser()['colaborador_id'] ?? currentUser()['id'];
+    
+    // Asumiendo que tienes un método que obtiene asignaciones inactivas/históricas
+    $historial = $this->asignacionModel->getHistorialPorColaborador($colaboradorId);
+
+    $this->render('Views/asignaciones/historial_colaborador.php', [
+        'pageTitle' => 'Mi Historial de Equipos',
+        'historial' => $historial // Array con registros de asignación/devolución
+    ]);
+}
+public function ver()
+{
+    $this->requireAuth();
+    $asignacionId = $_GET['id'] ?? null;
+
+    if (!$asignacionId) {
+        setFlashMessage('Error', 'ID de asignación no proporcionado.', 'error');
+        redirectTo('index.php?route=asignaciones&action=misEquipos');
+    }
+
+    // 1. Obtener la asignación. Esto ahora debería funcionar con el nuevo findById()
+    $asignacion = $this->asignacionModel->findById($asignacionId); 
+    
+    if (!$asignacion || empty($asignacion['equipo_id'])) {
+        setFlashMessage('Error', 'Asignación o Equipo asociado no encontrado.', 'error');
+        redirectTo('index.php?route=asignaciones&action=misEquipos');
+    }
+    
+    $equipoId = $asignacion['equipo_id'];
+    
+    // 2. Redirigir a la vista de detalles del Equipo
+    // El error 404 debería resolverse si la ruta 'equipos&action=ver' funciona.
+    redirectTo('index.php?route=equipos&action=ver&id=' . $equipoId);
+}
 
     /**
      * VISTA "MIS EQUIPOS" (opcional)

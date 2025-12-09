@@ -145,6 +145,50 @@ class Necesidad extends Model
 
         return $this->query($sql)->fetch();
     }
+    /**
+ * Obtiene todas las solicitudes realizadas por un colaborador. 
+ * Utilizado en "Mis Solicitudes".
+ * @param int $colaboradorId
+ * @return array
+ */
+public function getSolicitudesPorColaborador($colaboradorId)
+{
+    $sql = "SELECT 
+                n.id, n.fecha_solicitud, n.tipo_equipo, n.urgencia, n.estado,
+                c.nombre AS categoria_nombre
+            FROM necesidades n
+            LEFT JOIN categorias c ON n.categoria_id = c.id
+            WHERE n.colaborador_id = :colaboradorId 
+            ORDER BY n.fecha_solicitud DESC";
+
+    try {
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['colaboradorId' => $colaboradorId]);
+
+        // ¡CAMBIO CLAVE: \PDO::FETCH_ASSOC!
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+    } catch (\PDOException $e) {
+        throw new \Exception("Error al obtener solicitudes: " . $e->getMessage());
+    }
+}
+public function findById(int $id): ?array
+{
+    $sql = "SELECT * FROM necesidades WHERE id = :id"; // Asume que la tabla se llama 'necesidades'
+
+    try {
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        
+        // Usamos fetch() para una sola fila
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        return $result ?: null;
+
+    } catch (\PDOException $e) {
+        throw new \Exception("Error al buscar solicitud por ID: " . $e->getMessage());
+    }
+}
 
     /**
      * Obtener solicitudes por estado

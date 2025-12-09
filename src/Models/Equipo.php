@@ -110,6 +110,22 @@ class Equipo extends Model
         
         return $result ? $this->db->lastInsertId() : false;
     }
+    public function findById(int $id): ?array
+{
+    $sql = "SELECT * FROM equipos WHERE id = :id"; 
+
+    try {
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        return $result ?: null;
+
+    } catch (\PDOException $e) {
+        throw new \Exception("Error al buscar equipo por ID: " . $e->getMessage());
+    }
+}
     
     /**
      * Actualizar equipo

@@ -113,6 +113,23 @@
                 <span>Administración</span>
             </a>
         <?php endif; ?>
+<a href="index.php?route=asignaciones&action=misEquipos"
+           class="<?= (($_GET['route'] ?? '') === 'asignaciones' && ($_GET['action'] ?? '') === 'misEquipos') ? 'active' : '' ?>">
+            <i class="fas fa-desktop"></i>
+            <span>Mis Equipos</span>
+        </a>
+
+        <a href="index.php?route=asignaciones&action=historialColaborador"
+           class="<?= (($_GET['route'] ?? '') === 'asignaciones' && ($_GET['action'] ?? '') === 'historialColaborador') ? 'active' : '' ?>">
+            <i class="fas fa-history"></i>
+            <span>Historial de Asignaciones</span>
+        </a>
+
+        <a href="index.php?route=necesidades&action=misSolicitudes"
+           class="<?= (($_GET['route'] ?? '') === 'necesidades' && ($_GET['action'] ?? '') === 'misSolicitudes') ? 'active' : '' ?>">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Mis Solicitudes</span>
+        </a>
 
         <hr class="sidebar-divider">
 

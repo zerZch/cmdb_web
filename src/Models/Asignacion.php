@@ -67,58 +67,70 @@ class Asignacion extends Model
     /**
      * DEVOLVER EQUIPO
      */
-    public function devolverEquipo($asignacionId, $data)
-    {
-        // La observación es OBLIGATORIA (requisito de la rúbrica)
-        if (empty($data['observaciones_devolucion'])) {
-            throw new \Exception('La observación de devolución es obligatoria');
-        }
+    public function devolverEquipo(int $asignacionId, string $observaciones, string $estadoFinalEquipo): bool
+{
+    // Comenzar transacción (Recomendado para asegurar que ambas queries se ejecuten)
+    $this->db->beginTransaction();
 
-        $asignacion = $this->find($asignacionId);
-        if (!$asignacion) {
-            throw new \Exception('Asignación no encontrada');
-        }
-
-        if ($asignacion['estado'] !== 'activa') {
-            throw new \Exception('Esta asignación ya fue devuelta o cancelada');
-        }
-
-        $textoObs = $data['observaciones_devolucion'] ?? '';
-        if (!empty($data['motivo_devolucion'])) {
-            $textoObs .= "\nMotivo: " . $data['motivo_devolucion'];
-        }
-
-        // Actualizar asignación
-        $this->update($asignacionId, [
-            'estado'           => 'devuelta',
-            'fecha_devolucion' => date('Y-m-d'),
-            'observaciones'    => $textoObs
-        ]);
-
-        // Cambiar estado del equipo
-        $nuevoEstado = $data['estado_equipo'] ?? 'disponible';
-        $equipoModel = new Equipo();
+    try {
+        // 1. Actualizar el registro de ASIGNACIÓN (Paso CLAVE para el historial)
+        $sqlAsignacion = "UPDATE asignaciones SET 
+                            estado = 'inactiva',
+                            fecha_devolucion = NOW(),
+                            observaciones = :observaciones 
+                          WHERE id = :id AND estado = 'activa'";
         
-        // ==========================================================
-        // CORRECCIÓN: Llamar al método updateEstado() en lugar de update()
-        //             Esto asegura que usamos el método corregido.
-        // ==========================================================
-        $equipoModel->updateEstado($asignacion['equipo_id'], $nuevoEstado);
+        $stmtAsignacion = $this->db->prepare($sqlAsignacion);
+        $stmtAsignacion->execute([
+            'observaciones' => $observaciones,
+            'id' => $asignacionId
+        ]);
+        
+        // Obtener el equipo_id de la asignación para el siguiente paso
+        $asignacion = $this->findById($asignacionId); 
+        $equipoId = $asignacion['equipo_id'] ?? null;
 
-        // Registrar en historial
-        $historialModel = new HistorialMovimiento();
-        $historialModel->registrarMovimiento([
-            'equipo_id'        => $asignacion['equipo_id'],
-            'colaborador_id'   => $asignacion['colaborador_id'],
-            'usuario_id'       => $data['usuario_id'],
-            'tipo_movimiento'  => 'devolucion',
-            'estado_anterior'  => 'asignado',
-            'estado_nuevo'     => $nuevoEstado,
-            'observaciones'    => $textoObs
+        if (!$equipoId) {
+            throw new \Exception("Equipo ID no encontrado para la asignación.");
+        }
+
+        // 2. Actualizar el estado del EQUIPO
+        $sqlEquipo = "UPDATE equipos SET estado = :estadoFinalEquipo WHERE id = :equipoId";
+        $stmtEquipo = $this->db->prepare($sqlEquipo);
+        $stmtEquipo->execute([
+            'estadoFinalEquipo' => $estadoFinalEquipo,
+            'equipoId' => $equipoId
         ]);
 
+        // Confirmar los cambios
+        $this->db->commit();
         return true;
+
+    } catch (\Exception $e) {
+        // Revertir si algo falla
+        if ($this->db->inTransaction()) {
+            $this->db->rollBack();
+        }
+        // Puedes loggear el error $e->getMessage()
+        throw new \Exception("Fallo en la transacción de devolución: " . $e->getMessage());
     }
+}
+public function findById(int $id): ?array
+{
+    $sql = "SELECT * FROM asignaciones WHERE id = :id"; // Asume que la tabla se llama 'asignaciones'
+
+    try {
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        return $result ?: null;
+
+    } catch (\PDOException $e) {
+        throw new \Exception("Error al buscar asignación por ID: " . $e->getMessage());
+    }
+}
 
     /**
      * LISTADO DE ASIGNACIONES ACTIVAS
@@ -145,26 +157,102 @@ class Asignacion extends Model
 
         return $this->query($sql)->fetchAll();
     }
+    
 
     /**
      * ASIGNACIONES POR COLABORADOR
      */
-    public function getAsignacionesPorColaborador($colaboradorId)
-    {
-        $sql = "SELECT 
-                        a.*,
-                        e.nombre      AS equipo_nombre,
-                        e.numero_serie,
-                        e.marca,
-                        e.modelo,
-                        e.foto
-                    FROM {$this->table} a
-                    INNER JOIN equipos e ON a.equipo_id = e.id
-                    WHERE a.colaborador_id = ? AND a.estado = 'activa'
-                    ORDER BY a.fecha_asignacion DESC";
+    // --- MÉTODO 1: getAsignacionesPorColaborador ---
+public function getAsignacionesPorColaborador($colaboradorId)
+{
+    // ... Tu definición de $sql ...
+    $sql = "SELECT 
+                a.id, a.equipo_id, a.fecha_asignacion, a.observaciones,
+                e.nombre AS equipo_nombre, 
+                e.numero_serie
+            FROM asignaciones a
+            JOIN equipos e ON a.equipo_id = e.id
+            WHERE a.colaborador_id = :colaboradorId 
+            AND a.estado = 'activa' 
+            ORDER BY a.fecha_asignacion DESC";
 
-        return $this->query($sql, [$colaboradorId])->fetchAll();
+    try {
+        $sql = "SELECT 
+                    a.id, a.equipo_id, a.fecha_asignacion, a.observaciones,
+                    e.nombre AS equipo_nombre, 
+                    e.numero_serie
+                FROM asignaciones a
+                JOIN equipos e ON a.equipo_id = e.id
+                WHERE a.colaborador_id = :colaboradorId 
+                AND a.estado = 'activa' 
+                ORDER BY a.fecha_asignacion DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['colaboradorId' => $colaboradorId]);
+        
+        // ¡CAMBIO CLAVE: \PDO::FETCH_ASSOC!
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+    } catch (\PDOException $e) {
+        throw new \Exception("Error al obtener equipos asignados: " . $e->getMessage());
     }
+} // <--- ¡ASEGÚRATE DE QUE ESTA LLAVE DE CIERRE EXISTA!
+
+/**
+ * Obtiene el historial (asignaciones inactivas) de un colaborador. 
+ * Utilizado en "Historial de Asignaciones".
+ * @param int $colaboradorId
+ * @return array
+ */
+public function getHistorialPorColaborador($colaboradorId)
+{
+    $sql = "SELECT 
+                a.id, a.fecha_asignacion, a.fecha_devolucion, 
+                a.observaciones, /* <-- CORRECCIÓN: Usamos observaciones en lugar de motivo_devolucion */
+                e.nombre AS equipo_nombre, 
+                e.numero_serie
+            FROM asignaciones a
+            JOIN equipos e ON a.equipo_id = e.id
+            WHERE a.colaborador_id = :colaboradorId 
+            AND a.estado = 'inactiva' 
+            ORDER BY a.fecha_devolucion DESC";
+
+    try {
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['colaboradorId' => $colaboradorId]);
+        
+        // ¡CAMBIO CLAVE: \PDO::FETCH_ASSOC!
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+    } catch (\PDOException $e) {
+        // El error es capturado aquí, pero lo cambiamos a un mensaje más genérico
+        throw new \Exception("Error al obtener historial de asignaciones: " . $e->getMessage());
+    }
+}
+public function ver()
+{
+    $this->requireAuth();
+    $asignacionId = $_GET['id'] ?? null;
+
+    if (!$asignacionId) {
+        setFlashMessage('Error', 'ID de asignación no proporcionado.', 'error');
+        redirectTo('index.php?route=asignaciones&action=misEquipos');
+    }
+
+    // 1. Obtener la asignación. Esto ahora debería funcionar con el nuevo findById()
+    $asignacion = $this->asignacionModel->findById($asignacionId); 
+    
+    if (!$asignacion || empty($asignacion['equipo_id'])) {
+        setFlashMessage('Error', 'Asignación o Equipo asociado no encontrado.', 'error');
+        redirectTo('index.php?route=asignaciones&action=misEquipos');
+    }
+    
+    $equipoId = $asignacion['equipo_id'];
+    
+    // 2. Redirigir a la vista de detalles del Equipo
+    // El error 404 debería resolverse si la ruta 'equipos&action=ver' funciona.
+    redirectTo('index.php?route=equipos&action=ver&id=' . $equipoId);
+}
 
     /**
      * HISTORIAL COMPLETO
@@ -186,6 +274,7 @@ class Asignacion extends Model
 
         return $this->query($sql)->fetchAll();
     }
+    
 
     /**
      * ESTADÍSTICAS

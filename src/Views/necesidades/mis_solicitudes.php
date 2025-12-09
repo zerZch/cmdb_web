@@ -1,8 +1,8 @@
 <div class="page-header">
-    <h2><i class="fas fa-clipboard-list me-2"></i>Mis Solicitudes</h2>
+    <h2><i class="fas fa-clipboard-list me-2"></i>Mis Solicitudes de Equipos</h2>
 </div>
 
-<div class="mb-3">
+<div class="d-flex justify-content-end mb-3">
     <a href="index.php?route=necesidades&action=crear" class="btn btn-primary">
         <i class="fas fa-plus-circle me-1"></i> Nueva solicitud
     </a>
@@ -10,23 +10,25 @@
 
 <div class="card">
     <div class="card-body">
-        <?php if (empty($solicitudes)): ?>
-            <p class="text-muted mb-0">Aún no has registrado solicitudes.</p>
-        <?php else: ?>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Categoría</th>
+                        <th>Tipo Equipo</th>
+                        <th>Urgencia</th>
+                        <th>Estado</th>
+                        <th>Fecha Solicitud</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($solicitudes)): ?>
                         <tr>
-                            <th>ID</th>
-                            <th>Categoría</th>
-                            <th>Tipo equipo</th>
-                            <th>Urgencia</th>
-                            <th>Estado</th>
-                            <th>Fecha solicitud</th>
-                            <th>Respuesta / Comentarios</th>
+                            <td colspan="7" class="text-center">No has registrado ninguna solicitud de equipo.</td>
                         </tr>
-                    </thead>
-                    <tbody>
+                    <?php else: ?>
                         <?php foreach ($solicitudes as $sol): ?>
                             <tr>
                                 <td><?= $sol['id'] ?></td>
@@ -35,56 +37,40 @@
                                 <td>
                                     <?php
                                     $urgenciaBadge = [
-                                        'alta'   => 'danger',
+                                        'alta' => 'danger',
                                         'normal' => 'warning',
-                                        'baja'   => 'secondary'
+                                        'baja' => 'secondary'
                                     ];
-                                    $urg = $sol['urgencia'] ?? 'normal';
                                     ?>
-                                    <span class="badge bg-<?= $urgenciaBadge[$urg] ?? 'secondary' ?>">
-                                        <?= ucfirst($urg) ?>
+                                    <span class="badge bg-<?= $urgenciaBadge[$sol['urgencia']] ?>">
+                                        <?= ucfirst($sol['urgencia']) ?>
                                     </span>
                                 </td>
                                 <td>
                                     <?php
                                     $estadoBadge = [
-                                        'pendiente'  => 'warning',
-                                        'aprobada'   => 'success',
-                                        'rechazada'  => 'danger',
+                                        'pendiente' => 'warning',
+                                        'aprobada' => 'success',
+                                        'rechazada' => 'danger',
                                         'completada' => 'info'
                                     ];
-                                    $estado = $sol['estado'] ?? 'pendiente';
                                     ?>
-                                    <span class="badge bg-<?= $estadoBadge[$estado] ?? 'secondary' ?>">
-                                        <?= ucfirst($estado) ?>
+                                    <span class="badge bg-<?= $estadoBadge[$sol['estado']] ?>">
+                                        <?= ucfirst($sol['estado']) ?>
                                     </span>
                                 </td>
+                                <td><?= date('d/m/Y', strtotime($sol['fecha_solicitud'])) ?></td>
                                 <td>
-                                    <?= !empty($sol['fecha_solicitud']) 
-                                            ? date('d/m/Y', strtotime($sol['fecha_solicitud'])) 
-                                            : '-' ?>
-                                </td>
-                                <td>
-                                    <?php if (!empty($sol['observaciones_admin'])): ?>
-                                        <small class="text-muted">
-                                            <?= e($sol['observaciones_admin']) ?>
-                                            <?php if (!empty($sol['admin_nombre'])): ?>
-                                                <br><strong>Atendido por:</strong> <?= e($sol['admin_nombre']) ?>
-                                            <?php endif; ?>
-                                        </small>
-                                    <?php else: ?>
-                                        <small class="text-muted">
-                                            <?= $estado === 'pendiente' 
-                                                ? 'En espera de revisión'
-                                                : 'Sin comentarios' ?>
-                                        </small>
-                                    <?php endif; ?>
+                                    <a href="index.php?route=necesidades&action=ver&id=<?= $sol['id'] ?>" 
+                                       class="btn btn-sm btn-info" title="Ver Detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
