@@ -281,7 +281,7 @@ public function ver()
      */
     public function getEstadisticas()
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                         COUNT(*)                                      AS total_asignaciones,
                         SUM(CASE WHEN estado = 'activa'   THEN 1 ELSE 0 END) AS activas,
                         SUM(CASE WHEN estado = 'devuelta' THEN 1 ELSE 0 END) AS devueltas,
@@ -290,5 +290,157 @@ public function ver()
                     FROM {$this->table}";
 
         return $this->query($sql)->fetch();
+    }
+
+    /**
+     * SOLICITAR DEVOLUCIÓN (Por el colaborador)
+     */
+    public function solicitarDevolucion($asignacionId, $motivo, $observaciones)
+    {
+        try {
+            $sql = "UPDATE {$this->table}
+                    SET estado_solicitud = 'solicitada',
+                        motivo_devolucion = :motivo,
+                        fecha_solicitud_devolucion = NOW(),
+                        observaciones = CONCAT(COALESCE(observaciones, ''), '\n[Solicitud de Devolución] ', :observaciones)
+                    WHERE id = :id
+                      AND estado = 'activa'
+                      AND estado_solicitud = 'sin_solicitud'";
+
+            $stmt = $this->db->prepare($sql);
+            $result = $stmt->execute([
+                'id' => $asignacionId,
+                'motivo' => $motivo,
+                'observaciones' => $observaciones
+            ]);
+
+            return $result && $stmt->rowCount() > 0;
+        } catch (\PDOException $e) {
+            throw new \Exception("Error al solicitar devolución: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * OBTENER SOLICITUDES DE DEVOLUCIÓN PENDIENTES (Para admin)
+     */
+    public function getSolicitudesPendientes()
+    {
+        $sql = "SELECT
+                    a.*,
+                    e.nombre AS equipo_nombre,
+                    e.numero_serie,
+                    e.marca,
+                    e.modelo,
+                    CONCAT(c.nombre, ' ', c.apellido) AS colaborador_nombre,
+                    c.departamento,
+                    c.ubicacion,
+                    c.email AS colaborador_email,
+                    c.telefono AS colaborador_telefono
+                FROM {$this->table} a
+                INNER JOIN equipos e ON a.equipo_id = e.id
+                INNER JOIN colaboradores c ON a.colaborador_id = c.id
+                WHERE a.estado = 'activa'
+                  AND a.estado_solicitud = 'solicitada'
+                ORDER BY a.fecha_solicitud_devolucion ASC";
+
+        return $this->query($sql)->fetchAll();
+    }
+
+    /**
+     * VALIDAR DEVOLUCIÓN (Por el admin - recibir el equipo)
+     */
+    public function validarDevolucion($asignacionId, $usuarioValidadorId, $observacionesValidacion, $estadoFinalEquipo = 'en_revision')
+    {
+        $this->db->beginTransaction();
+
+        try {
+            // 1. Obtener la asignación
+            $asignacion = $this->findById($asignacionId);
+            if (!$asignacion || $asignacion['estado'] !== 'activa') {
+                throw new \Exception("Asignación no válida");
+            }
+
+            // 2. Actualizar la asignación como devuelta y validada
+            $sqlAsignacion = "UPDATE {$this->table}
+                            SET estado = 'devuelta',
+                                estado_solicitud = 'validada',
+                                fecha_devolucion = NOW(),
+                                usuario_validador_id = :usuario_validador_id,
+                                observaciones_validacion = :observaciones_validacion
+                            WHERE id = :id";
+
+            $stmtAsignacion = $this->db->prepare($sqlAsignacion);
+            $stmtAsignacion->execute([
+                'id' => $asignacionId,
+                'usuario_validador_id' => $usuarioValidadorId,
+                'observaciones_validacion' => $observacionesValidacion
+            ]);
+
+            // 3. Actualizar el estado del equipo a 'en_revision'
+            $equipoModel = new Equipo();
+            $equipoModel->updateEstado($asignacion['equipo_id'], $estadoFinalEquipo);
+
+            // 4. Registrar en historial
+            $historialModel = new HistorialMovimiento();
+            $historialModel->registrarMovimiento([
+                'equipo_id' => $asignacion['equipo_id'],
+                'colaborador_id' => $asignacion['colaborador_id'],
+                'usuario_id' => $usuarioValidadorId,
+                'tipo_movimiento' => 'devolucion',
+                'estado_anterior' => 'asignado',
+                'estado_nuevo' => $estadoFinalEquipo,
+                'observaciones' => 'Devolución validada. Motivo: ' . ($asignacion['motivo_devolucion'] ?? 'N/A') . '. ' . $observacionesValidacion
+            ]);
+
+            $this->db->commit();
+            return true;
+
+        } catch (\Exception $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw new \Exception("Error al validar devolución: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * RECHAZAR SOLICITUD DE DEVOLUCIÓN (Por el admin)
+     */
+    public function rechazarSolicitudDevolucion($asignacionId, $usuarioId, $motivo)
+    {
+        try {
+            $sql = "UPDATE {$this->table}
+                    SET estado_solicitud = 'rechazada',
+                        usuario_validador_id = :usuario_id,
+                        observaciones_validacion = :motivo
+                    WHERE id = :id
+                      AND estado = 'activa'
+                      AND estado_solicitud = 'solicitada'";
+
+            $stmt = $this->db->prepare($sql);
+            $result = $stmt->execute([
+                'id' => $asignacionId,
+                'usuario_id' => $usuarioId,
+                'motivo' => $motivo
+            ]);
+
+            return $result && $stmt->rowCount() > 0;
+        } catch (\PDOException $e) {
+            throw new \Exception("Error al rechazar solicitud: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * CONTAR SOLICITUDES PENDIENTES (Para notificaciones)
+     */
+    public function contarSolicitudesPendientes()
+    {
+        $sql = "SELECT COUNT(*) as total
+                FROM {$this->table}
+                WHERE estado = 'activa'
+                  AND estado_solicitud = 'solicitada'";
+
+        $result = $this->query($sql)->fetch();
+        return $result['total'] ?? 0;
     }
 }

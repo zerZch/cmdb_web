@@ -227,12 +227,220 @@ class AsignacionController extends BaseController
     {
         $this->requireAuth();
 
-        $colaboradorId = currentUser()['id']; 
+        $colaboradorId = currentUser()['id'];
         $equiposAsignados = $this->asignacionModel->getAsignacionesPorColaborador($colaboradorId);
 
         $this->render('Views/asignaciones/mis_equipos.php', [
             'pageTitle' => 'Mis Equipos Asignados',
             'equipos' => $equiposAsignados
         ]);
+    }
+
+    /**
+     * FORMULARIO PARA SOLICITAR DEVOLUCIÓN (COLABORADOR)
+     */
+    public function solicitarDevolucionForm()
+    {
+        $this->requireAuth();
+
+        $asignacionId = $_GET['id'] ?? null;
+        if (!$asignacionId) {
+            setFlashMessage('Error', 'Asignación no especificada.', 'error');
+            redirect('asignaciones', 'misEquipos');
+        }
+
+        // Obtener la asignación y verificar que pertenece al colaborador
+        $asignacion = $this->asignacionModel->findById($asignacionId);
+        $colaboradorId = currentUser()['id'];
+
+        if (!$asignacion || $asignacion['colaborador_id'] != $colaboradorId) {
+            setFlashMessage('Error', 'No tienes permiso para solicitar esta devolución.', 'error');
+            redirect('asignaciones', 'misEquipos');
+        }
+
+        if ($asignacion['estado'] !== 'activa') {
+            setFlashMessage('Error', 'Esta asignación ya no está activa.', 'error');
+            redirect('asignaciones', 'misEquipos');
+        }
+
+        if ($asignacion['estado_solicitud'] === 'solicitada') {
+            setFlashMessage('Info', 'Ya has solicitado la devolución de este equipo. Está pendiente de validación.', 'info');
+            redirect('asignaciones', 'misEquipos');
+        }
+
+        // Obtener datos del equipo
+        $equipo = $this->equipoModel->find($asignacion['equipo_id']);
+
+        $this->render('Views/asignaciones/solicitar_devolucion.php', [
+            'pageTitle' => 'Solicitar Devolución de Equipo',
+            'asignacion' => $asignacion,
+            'equipo' => $equipo
+        ]);
+    }
+
+    /**
+     * GUARDAR SOLICITUD DE DEVOLUCIÓN (COLABORADOR)
+     */
+    public function guardarSolicitudDevolucion()
+    {
+        $this->requireAuth();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('asignaciones', 'misEquipos');
+        }
+
+        $asignacionId = $_POST['asignacion_id'] ?? null;
+        $motivo = $_POST['motivo'] ?? null;
+        $observaciones = $_POST['observaciones'] ?? '';
+
+        if (!$asignacionId || !$motivo) {
+            setFlashMessage('Error', 'Datos incompletos.', 'error');
+            redirect('asignaciones', 'misEquipos');
+        }
+
+        // Verificar que la asignación pertenece al colaborador
+        $asignacion = $this->asignacionModel->findById($asignacionId);
+        $colaboradorId = currentUser()['id'];
+
+        if (!$asignacion || $asignacion['colaborador_id'] != $colaboradorId) {
+            setFlashMessage('Error', 'No tienes permiso para esta operación.', 'error');
+            redirect('asignaciones', 'misEquipos');
+        }
+
+        try {
+            $success = $this->asignacionModel->solicitarDevolucion(
+                $asignacionId,
+                $motivo,
+                $observaciones
+            );
+
+            if ($success) {
+                setFlashMessage(
+                    'Solicitud Enviada',
+                    'Tu solicitud de devolución ha sido enviada y está pendiente de validación por un administrador.',
+                    'success'
+                );
+            } else {
+                setFlashMessage('Error', 'No se pudo procesar la solicitud.', 'error');
+            }
+        } catch (\Exception $e) {
+            setFlashMessage('Error', $e->getMessage(), 'error');
+        }
+
+        redirect('asignaciones', 'misEquipos');
+    }
+
+    /**
+     * VISTA DE SOLICITUDES PENDIENTES (ADMIN ONLY)
+     */
+    public function devolucionesPendientes()
+    {
+        $this->requireAuth();
+        $this->requireRole(ROLE_ADMIN);
+
+        $solicitudesPendientes = $this->asignacionModel->getSolicitudesPendientes();
+
+        $this->render('Views/asignaciones/devoluciones_pendientes.php', [
+            'pageTitle' => 'Solicitudes de Devolución Pendientes',
+            'solicitudes' => $solicitudesPendientes
+        ]);
+    }
+
+    /**
+     * FORMULARIO VALIDAR DEVOLUCIÓN (ADMIN ONLY)
+     */
+    public function validarDevolucionForm()
+    {
+        $this->requireAuth();
+        $this->requireRole(ROLE_ADMIN);
+
+        $asignacionId = $_GET['id'] ?? null;
+        if (!$asignacionId) {
+            setFlashMessage('Error', 'Solicitud no especificada.', 'error');
+            redirect('asignaciones', 'devolucionesPendientes');
+        }
+
+        $asignacion = $this->asignacionModel->findById($asignacionId);
+        if (!$asignacion || $asignacion['estado_solicitud'] !== 'solicitada') {
+            setFlashMessage('Error', 'Solicitud no válida o ya procesada.', 'error');
+            redirect('asignaciones', 'devolucionesPendientes');
+        }
+
+        // Obtener datos relacionados
+        $equipo = $this->equipoModel->find($asignacion['equipo_id']);
+        $colaborador = $this->colaboradorModel->find($asignacion['colaborador_id']);
+
+        $this->render('Views/asignaciones/validar_devolucion.php', [
+            'pageTitle' => 'Validar Devolución de Equipo',
+            'asignacion' => $asignacion,
+            'equipo' => $equipo,
+            'colaborador' => $colaborador
+        ]);
+    }
+
+    /**
+     * PROCESAR VALIDACIÓN DE DEVOLUCIÓN (ADMIN ONLY)
+     */
+    public function procesarValidacion()
+    {
+        $this->requireAuth();
+        $this->requireRole(ROLE_ADMIN);
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('asignaciones', 'devolucionesPendientes');
+        }
+
+        $asignacionId = $_POST['asignacion_id'] ?? null;
+        $accion = $_POST['accion'] ?? null;
+        $observaciones = $_POST['observaciones'] ?? '';
+        $estadoEquipo = $_POST['estado_equipo'] ?? 'en_revision';
+
+        if (!$asignacionId || !$accion) {
+            setFlashMessage('Error', 'Datos incompletos.', 'error');
+            redirect('asignaciones', 'devolucionesPendientes');
+        }
+
+        $usuarioId = currentUser()['id'];
+
+        try {
+            if ($accion === 'validar') {
+                $success = $this->asignacionModel->validarDevolucion(
+                    $asignacionId,
+                    $usuarioId,
+                    $observaciones,
+                    $estadoEquipo
+                );
+
+                if ($success) {
+                    setFlashMessage(
+                        'Devolución Validada',
+                        'La devolución ha sido validada. El equipo está en estado de revisión técnica.',
+                        'success'
+                    );
+                } else {
+                    setFlashMessage('Error', 'No se pudo validar la devolución.', 'error');
+                }
+            } elseif ($accion === 'rechazar') {
+                $success = $this->asignacionModel->rechazarSolicitudDevolucion(
+                    $asignacionId,
+                    $usuarioId,
+                    $observaciones
+                );
+
+                if ($success) {
+                    setFlashMessage(
+                        'Solicitud Rechazada',
+                        'La solicitud de devolución ha sido rechazada.',
+                        'info'
+                    );
+                } else {
+                    setFlashMessage('Error', 'No se pudo rechazar la solicitud.', 'error');
+                }
+            }
+        } catch (\Exception $e) {
+            setFlashMessage('Error', $e->getMessage(), 'error');
+        }
+
+        redirect('asignaciones', 'devolucionesPendientes');
     }
 }

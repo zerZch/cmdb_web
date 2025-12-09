@@ -30,9 +30,13 @@
                                 <td><?= date('d/m/Y', strtotime($equipo['fecha_asignacion'])) ?></td>
                                 <td><?= e(substr($equipo['observaciones'] ?? 'N/A', 0, 50)) . '...' ?></td>
                                 <td>
-                                    <a href="index.php?route=equipos&action=ver&id=<?= $equipo['equipo_id'] ?>" 
+                                    <a href="index.php?route=equipos&action=ver&id=<?= $equipo['equipo_id'] ?>"
                                        class="btn btn-sm btn-info" title="Ver Equipo">
-                                        <i class="fas fa-eye"></i>
+                                        <i class="fas fa-eye"></i> Ver
+                                    </a>
+                                    <a href="index.php?route=asignaciones&action=solicitarDevolucionForm&id=<?= $equipo['id'] ?>"
+                                       class="btn btn-sm btn-warning" title="Solicitar Devolución">
+                                        <i class="fas fa-undo"></i> Devolver
                                     </a>
                                 </td>
                             </tr>
