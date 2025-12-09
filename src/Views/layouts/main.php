@@ -90,6 +90,20 @@
         <span>Asignaciones</span>
     </a>
 
+    <?php
+    // Obtener cantidad de solicitudes de devolución pendientes
+    $asignacionModel = new \App\Models\Asignacion();
+    $solicitudesPendientes = $asignacionModel->contarSolicitudesPendientes();
+    ?>
+    <a href="index.php?route=asignaciones&action=devolucionesPendientes"
+       class="<?= (($_GET['route'] ?? '') === 'asignaciones' && ($_GET['action'] ?? '') === 'devolucionesPendientes') ? 'active' : '' ?>">
+        <i class="fas fa-undo"></i>
+        <span>Devoluciones Pendientes</span>
+        <?php if ($solicitudesPendientes > 0): ?>
+            <span class="badge bg-warning text-dark ms-2"><?= $solicitudesPendientes ?></span>
+        <?php endif; ?>
+    </a>
+
     <a href="index.php?route=necesidades"
        class="<?= ($_GET['route'] ?? '') === 'necesidades' ? 'active' : '' ?>">
         <i class="fas fa-clipboard-check"></i>
