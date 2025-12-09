@@ -137,7 +137,7 @@ class ReporteController extends BaseController
             SELECT 
                 e.estado,
                 COUNT(e.id) as total_equipos,
-                SUM(e.costo_adquisicion) as valor_total_estado
+                COALESCE(SUM(e.costo_adquisicion), 0) as valor_total_estado
             FROM equipos e
             WHERE e.estado != 'dado_de_baja'
             GROUP BY e.estado
@@ -373,7 +373,7 @@ public function inventarioPorCategoria()
     // Obtener datos del reporte
     $datosReporte = $this->obtenerDatosInventarioPorCategoria();
 
-    $this->render('Views/reportes/inventario_categoria.php', [
+    $this->render('Views/reportes/inventario.php', [
         'pageTitle' => 'Reporte de Inventario por Categoría',
         'datosReporte' => $datosReporte
     ]);

@@ -27,7 +27,7 @@ function handleException($e) {
 /**
  * Redirecciona a una ruta específica
  */
-function redirect($route, $action = 'index', $params = []) {
+function redirect($route, $action = 'index', $params = []) { // <-- CAMBIO AQUÍ
     $url = BASE_URL . "index.php?route={$route}&action={$action}";
 
     if (!empty($params)) {

@@ -7,7 +7,6 @@ use App\Models\Colaborador;
 
 /**
  * Controlador de Asignaciones
- * Integrante 4 - Asignaciones y Devoluciones
  */
 class AsignacionController extends BaseController
 {
@@ -17,14 +16,14 @@ class AsignacionController extends BaseController
 
     public function __construct()
     {
-        // Esta sección ha sido reescrita para eliminar posibles caracteres invisibles
-        $this->asignacionModel  = new Asignacion();
-        $this->equipoModel      = new Equipo();
+        // Bloque reescrito en la menor cantidad de líneas posible para evitar errores de sintaxis
+        $this->asignacionModel = new Asignacion();
+        $this->equipoModel = new Equipo(); 
         $this->colaboradorModel = new Colaborador();
     }
-
+    
     /**
-     * LISTADO PRINCIPAL
+     * LISTADO PRINCIPAL (ADMIN)
      */
     public function index()
     {
@@ -39,11 +38,12 @@ class AsignacionController extends BaseController
     }
 
     /**
-     * FORMULARIO DE NUEVA ASIGNACIÓN
+     * FORMULARIO DE NUEVA ASIGNACIÓN (ADMIN)
      */
     public function crear()
     {
         $this->requireAuth();
+        $this->requireRole(ROLE_ADMIN);
 
         // Equipos disponibles
         $equiposDisponibles = $this->equipoModel->where('estado', '=', 'disponible');
@@ -59,21 +59,21 @@ class AsignacionController extends BaseController
     }
 
     /**
-     * GUARDAR ASIGNACIÓN
+     * GUARDAR ASIGNACIÓN (ADMIN)
      */
     public function guardar()
     {
         $this->requireAuth();
+        $this->requireRole(ROLE_ADMIN);
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('asignaciones');
+            redirect('asignaciones', 'index');
         }
 
-        // Datos que realmente existen en la tabla "asignaciones"
         $data = [
             'equipo_id'         => $_POST['equipo_id']          ?? null,
             'colaborador_id'    => $_POST['colaborador_id']     ?? null,
-            'usuario_id'        => currentUser()['id'],              // usuario que asigna
+            'usuario_id'        => currentUser()['id'],
             'fecha_asignacion'  => $_POST['fecha_asignacion']   ?? date('Y-m-d'),
             'observaciones'     => $_POST['observaciones']      ?? null,
         ];
@@ -86,7 +86,7 @@ class AsignacionController extends BaseController
                 'El equipo ha sido asignado correctamente al colaborador.',
                 'success'
             );
-            redirect('asignaciones');
+            redirect('asignaciones', 'index'); 
         } catch (\Exception $e) {
             setFlashMessage('Error', $e->getMessage(), 'error');
             redirect('asignaciones', 'crear');
@@ -94,44 +94,44 @@ class AsignacionController extends BaseController
     }
 
     /**
-     * FORMULARIO PARA DEVOLVER EQUIPO
+     * FORMULARIO PARA DEVOLVER EQUIPO (ADMIN ONLY)
      */
     public function devolverForm()
     {
         $this->requireAuth();
+        $this->requireRole(ROLE_ADMIN); 
 
         $id = $_GET['id'] ?? null;
         if (!$id) {
-            redirect('asignaciones');
+            redirect('asignaciones', 'index'); 
         }
 
         // 1. Obtener datos de la asignación base
         $asignacion = $this->asignacionModel->find($id);
-        if (!$asignacion || $asignacion['estado'] !== 'activa') { // Añadida verificación de estado
-            $this->setFlashMessage('error', 'Asignación no encontrada o inactiva.');
-            redirect('asignaciones');
+        if (!$asignacion || $asignacion['estado'] !== 'activa') { 
+            setFlashMessage('error', 'Asignación no encontrada o inactiva.');
+            redirect('asignaciones', 'index'); 
         }
 
         // 2. Obtener datos del equipo asociado
         $equipo = $this->equipoModel->find($asignacion['equipo_id']);
         if (!$equipo) {
-            $this->setFlashMessage('error', 'Equipo asociado no encontrado.');
-            redirect('asignaciones');
+            setFlashMessage('error', 'Equipo asociado no encontrado.');
+            redirect('asignaciones', 'index'); 
         }
         
         // 3. Obtener datos del colaborador asociado
         $colaborador = $this->colaboradorModel->find($asignacion['colaborador_id']);
         if (!$colaborador) {
-             $this->setFlashMessage('error', 'Colaborador asociado no encontrado.');
-             redirect('asignaciones');
+            setFlashMessage('error', 'Colaborador asociado no encontrado.');
+            redirect('asignaciones', 'index'); 
         }
 
-        // 4. CORRECCIÓN: Fusionar los datos en $asignacion para la vista
+        // 4. Fusionar los datos en $asignacion para la vista
         $asignacion['equipo_nombre'] = $equipo['nombre'];
         $asignacion['numero_serie'] = $equipo['numero_serie'];
         $asignacion['colaborador_nombre'] = $colaborador['nombre'];
         $asignacion['colaborador_apellido'] = $colaborador['apellido'];
-        // Si tienes el campo 'departamento' en Colaborador
         $asignacion['departamento'] = $colaborador['departamento'] ?? 'N/A';
 
 
@@ -142,96 +142,97 @@ class AsignacionController extends BaseController
     }
 
     /**
-     * GUARDAR DEVOLUCIÓN
+     * GUARDAR DEVOLUCIÓN (ADMIN ONLY)
      */
-    // En src/Controllers/AsignacionController.php
-
-public function devolver()
-{
-    $this->requireAuth();
-    
-    // 1. Validar que la solicitud sea POST y que existan los campos necesarios
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['asignacion_id'])) {
-        setFlashMessage('Error', 'Solicitud inválida.', 'error');
-        redirectTo('index.php?route=asignaciones&action=misEquipos');
-    }
-
-    $asignacionId = $_POST['asignacion_id'];
-    $observaciones = $_POST['observaciones'] ?? 'Sin observaciones al devolver.';
-    $estadoFinalEquipo = $_POST['estado_final'] ?? 'disponible'; // Podría ser 'disponible' o 'dañado'
-
-    try {
-        // 2. Ejecutar la lógica en el Modelo
-        $success = $this->asignacionModel->devolverEquipo(
-            $asignacionId, 
-            $observaciones, 
-            $estadoFinalEquipo
-        );
-
-        if ($success) {
-            setFlashMessage('Éxito', 'Equipo devuelto correctamente. La asignación ha finalizado.', 'success');
-        } else {
-            setFlashMessage('Error', 'No se pudo completar la devolución.', 'error');
+    public function devolver()
+    {
+        $this->requireAuth();
+        $this->requireRole(ROLE_ADMIN); 
+        
+        // 1. Validar que la solicitud sea POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['asignacion_id'])) {
+            setFlashMessage('Error', 'Solicitud inválida.', 'error');
+            redirect('asignaciones', 'index'); 
         }
-    } catch (\Exception $e) {
-        setFlashMessage('Error', 'Error del sistema: ' . $e->getMessage(), 'error');
-    }
-    
 
-    // 3. Redirigir de vuelta a "Mis Equipos" o al historial
-    redirectTo('index.php?route=asignaciones&action=misEquipos');
-}
+        $asignacionId = $_POST['asignacion_id'];
+        $observaciones = $_POST['observaciones'] ?? 'Sin observaciones al devolver.';
+        $estadoFinalEquipo = $_POST['estado_final'] ?? 'disponible'; 
+
+        try {
+            // 2. Ejecutar la lógica en el Modelo
+            $success = $this->asignacionModel->devolverEquipo(
+                $asignacionId, 
+                $observaciones, 
+                $estadoFinalEquipo
+            );
+
+            if ($success) {
+                setFlashMessage('Éxito', 'Equipo devuelto correctamente. La asignación ha finalizado.', 'success');
+            } else {
+                setFlashMessage('Error', 'No se pudo completar la devolución.', 'error');
+            }
+        } catch (\Exception $e) {
+            setFlashMessage('Error', 'Error del sistema: ' . $e->getMessage(), 'error');
+        }
+        
+        // 3. Redirigir siempre al listado de gestión (ADMIN)
+        redirect('asignaciones', 'index'); 
+    }
+
     public function historialColaborador()
-{
-    $this->requireAuth();
-    $colaboradorId = currentUser()['colaborador_id'] ?? currentUser()['id'];
-    
-    // Asumiendo que tienes un método que obtiene asignaciones inactivas/históricas
-    $historial = $this->asignacionModel->getHistorialPorColaborador($colaboradorId);
+    {
+        $this->requireAuth();
+        $colaboradorId = currentUser()['id'];
 
-    $this->render('Views/asignaciones/historial_colaborador.php', [
-        'pageTitle' => 'Mi Historial de Equipos',
-        'historial' => $historial // Array con registros de asignación/devolución
-    ]);
-}
-public function ver()
-{
-    $this->requireAuth();
-    $asignacionId = $_GET['id'] ?? null;
+        // Este método usa el ID 12 (el ID de colaborador de Juan Pérez) para buscar en 'asignaciones'
+        $historial = $this->asignacionModel->getHistorialPorColaborador($colaboradorId);
+        
+        $historial = $this->asignacionModel->getHistorialPorColaborador($colaboradorId);
 
-    if (!$asignacionId) {
-        setFlashMessage('Error', 'ID de asignación no proporcionado.', 'error');
-        redirectTo('index.php?route=asignaciones&action=misEquipos');
+        $this->render('Views/asignaciones/historial_colaborador.php', [
+            'pageTitle' => 'Mi Historial de Equipos',
+            'historial' => $historial 
+        ]);
     }
 
-    // 1. Obtener la asignación. Esto ahora debería funcionar con el nuevo findById()
-    $asignacion = $this->asignacionModel->findById($asignacionId); 
-    
-    if (!$asignacion || empty($asignacion['equipo_id'])) {
-        setFlashMessage('Error', 'Asignación o Equipo asociado no encontrado.', 'error');
-        redirectTo('index.php?route=asignaciones&action=misEquipos');
+    public function ver()
+    {
+        $this->requireAuth();
+        $asignacionId = $_GET['id'] ?? null;
+
+        if (!$asignacionId) {
+            setFlashMessage('Error', 'ID de asignación no proporcionado.', 'error');
+            redirect('asignaciones', 'index'); 
+        }
+
+        // 1. Obtener la asignación.
+        $asignacion = $this->asignacionModel->findById($asignacionId); 
+        
+        if (!$asignacion || empty($asignacion['equipo_id'])) {
+            setFlashMessage('Error', 'Asignación o Equipo asociado no encontrado.', 'error');
+            redirect('asignaciones', 'index'); 
+        }
+        
+        $equipoId = $asignacion['equipo_id'];
+        
+        // 2. Redirigir a la vista de detalles del Equipo
+        redirect('equipos', 'ver', ['id' => $equipoId]); 
     }
-    
-    $equipoId = $asignacion['equipo_id'];
-    
-    // 2. Redirigir a la vista de detalles del Equipo
-    // El error 404 debería resolverse si la ruta 'equipos&action=ver' funciona.
-    redirectTo('index.php?route=equipos&action=ver&id=' . $equipoId);
-}
 
     /**
-     * VISTA "MIS EQUIPOS" (opcional)
+     * VISTA "MIS EQUIPOS" (COLABORADOR ONLY)
      */
     public function misEquipos()
     {
         $this->requireAuth();
 
-        $colaboradorId = currentUser()['id']; // si tu lógica es distinta, aquí se ajusta
+        $colaboradorId = currentUser()['id']; 
         $equiposAsignados = $this->asignacionModel->getAsignacionesPorColaborador($colaboradorId);
 
         $this->render('Views/asignaciones/mis_equipos.php', [
             'pageTitle' => 'Mis Equipos Asignados',
-            'equipos'   => $equiposAsignados
+            'equipos' => $equiposAsignados
         ]);
     }
 }

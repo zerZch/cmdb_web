@@ -71,7 +71,16 @@
 
 <script>
 $(document).ready(function() {
+    var tabla = $('#tablaReporteEstado');
+    // 1. Verificar si la tabla ya ha sido inicializada como DataTables
+    if ($.fn.DataTable.isDataTable('#tablaReporteEstado')) {
+        // 2. Si es una DataTables, destruir la instancia existente.
+        $('#tablaReporteEstado').DataTable().destroy();
+    }
+    
+    // 3. Inicializar DataTables
     $('#tablaReporteEstado').DataTable({
+        retrieve: true,
         language: {
             url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
         },
