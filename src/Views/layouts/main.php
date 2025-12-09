@@ -68,6 +68,13 @@
             <span>Equipos</span>
         </a>
 
+        <!-- Categorías -->
+        <a href="index.php?route=categorias"
+           class="<?= ($_GET['route'] ?? '') === 'categorias' ? 'active' : '' ?>">
+            <i class="fas fa-tags"></i>
+            <span>Categorías</span>
+        </a>
+
         <!-- Bajas -->
         <a href="index.php?route=bajas"
            class="<?= ($_GET['route'] ?? '') === 'bajas' ? 'active' : '' ?>">
