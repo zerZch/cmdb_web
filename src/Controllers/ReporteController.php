@@ -75,7 +75,7 @@ class ReporteController extends BaseController
 
         if (!$equipoId) {
             // Mostrar selector de equipos
-            $equipos = $this->equipoModel->all();
+            $equipos = $this->equipoModel->getAllWithCategoria();
             
             $this->render('Views/reportes/seleccionar_equipo.php', [
                 'pageTitle' => 'Historial de Equipos',
