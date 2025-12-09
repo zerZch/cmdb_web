@@ -75,7 +75,7 @@ class ReporteController extends BaseController
 
         if (!$equipoId) {
             // Mostrar selector de equipos
-            $equipos = $this->equipoModel->all();
+            $equipos = $this->equipoModel->getAllWithCategoria();
             
             $this->render('Views/reportes/seleccionar_equipo.php', [
                 'pageTitle' => 'Historial de Equipos',
@@ -116,6 +116,39 @@ class ReporteController extends BaseController
 
         $this->render('Views/reportes/equipos_colaborador.php', [
             'pageTitle' => 'Equipos por Colaborador',
+            'reporte' => $reporte
+        ]);
+    }
+
+    // Nuevo método a añadir en ReporteController.php
+
+    /**
+     * Reporte de Equipos por Estado (ej: Disponible, Asignado, Dañado)
+     */
+    public function equiposPorEstado()
+    {
+        $this->requireAuth();
+        
+        // Obtener la conexión a la base de datos a través del modelo
+        $db = $this->equipoModel->getConnection();
+
+        // Consulta SQL para obtener la cuenta de equipos por cada estado
+        $query = "
+            SELECT 
+                e.estado,
+                COUNT(e.id) as total_equipos,
+                SUM(e.costo_adquisicion) as valor_total_estado
+            FROM equipos e
+            WHERE e.estado != 'dado_de_baja'
+            GROUP BY e.estado
+            ORDER BY total_equipos DESC
+        ";
+
+        $stmt = $db->query($query);
+        $reporte = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $this->render('Views/reportes/equipos_estado.php', [
+            'pageTitle' => 'Reporte de Equipos por Estado',
             'reporte' => $reporte
         ]);
     }

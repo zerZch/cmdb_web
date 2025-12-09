@@ -75,7 +75,7 @@
                         </td>
                         <td>
                             <span class="badge bg-primary">
-                                <?= e($equipo['categoria_nombre']) ?>
+                                <?= e($equipo['categoria_nombre'] ?? 'N/A') ?>
                             </span>
                         </td>
                         <td>
