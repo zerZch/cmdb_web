@@ -74,12 +74,12 @@ class Asignacion extends Model
 
     try {
         // 1. Actualizar el registro de ASIGNACIÓN (Paso CLAVE para el historial)
-        $sqlAsignacion = "UPDATE asignaciones SET 
-                            estado = 'inactiva',
+        $sqlAsignacion = "UPDATE asignaciones SET
+                            estado = 'devuelta',
                             fecha_devolucion = NOW(),
-                            observaciones = :observaciones 
+                            observaciones = :observaciones
                           WHERE id = :id AND estado = 'activa'";
-        
+
         $stmtAsignacion = $this->db->prepare($sqlAsignacion);
         $stmtAsignacion->execute([
             'observaciones' => $observaciones,
@@ -206,15 +206,15 @@ public function getAsignacionesPorColaborador($colaboradorId)
  */
 public function getHistorialPorColaborador($colaboradorId)
 {
-    $sql = "SELECT 
-                a.id, a.fecha_asignacion, a.fecha_devolucion, 
-                a.observaciones, /* <-- CORRECCIÓN: Usamos observaciones en lugar de motivo_devolucion */
-                e.nombre AS equipo_nombre, 
+    $sql = "SELECT
+                a.id, a.fecha_asignacion, a.fecha_devolucion,
+                a.observaciones,
+                e.nombre AS equipo_nombre,
                 e.numero_serie
             FROM asignaciones a
             JOIN equipos e ON a.equipo_id = e.id
-            WHERE a.colaborador_id = :colaboradorId 
-            AND a.estado = 'inactiva' 
+            WHERE a.colaborador_id = :colaboradorId
+            AND a.estado = 'devuelta'
             ORDER BY a.fecha_devolucion DESC";
 
     try {
